@@ -1,0 +1,30 @@
+# Configuration for 'repo_helper' (https://github.com/repo-helper/repo_helper)
+---
+modname: 'circuitpython_astral'
+copyright_years: '2009-2021'
+author: 'Simon Kennedy'
+email: 'sffjunkie+code@gmail.com'
+username: 'domdfcoding'
+version: '2.2'
+license: 'Apache-2.0'
+short_desc: 'Python calculations for the position of the sun and moon. '
+
+enable_conda: false
+enable_docs: false
+enable_tests: false
+use_whey: true
+
+keywords:
+ - sun
+ - moon
+ - sunrise
+ - sunset
+ - dawn
+ - dusk
+ - circuitpython
+
+requires_python: 3.4
+
+exclude_files:
+ - contributing
+ - pkginfo

@@ -1,0 +1,58 @@
+[build-system]
+requires = [ "whey",]
+build-backend = "whey"
+
+[project]
+name = "circuitpython_astral"
+version = "2.2"
+description = "Python calculations for the position of the sun and moon."
+readme = "README.rst"
+keywords = [ "circuitpython", "dawn", "dusk", "moon", "sun", "sunrise", "sunset",]
+dynamic = [ "classifiers", "dependencies",]
+requires-python = ">=3.4"
+
+[[project.authors]]
+name = "Simon Kennedy"
+email = "sffjunkie+code@gmail.com"
+
+
+[project.license]
+file = "LICENSE"
+
+[project.urls]
+Homepage = "https://github.com/domdfcoding/circuitpython_astral"
+"Issue Tracker" = "https://github.com/domdfcoding/circuitpython_astral/issues"
+"Source Code" = "https://github.com/domdfcoding/circuitpython_astral"
+
+[tool.whey]
+base-classifiers = []
+python-versions = [ "3.6",]
+python-implementations = [ "CPython",]
+platforms = [ "Windows", "macOS", "Linux",]
+license-key = "Apache-2.0"
+
+[tool.importcheck]
+
+[tool.mypy]
+python_version = "3.6"
+namespace_packages = true
+check_untyped_defs = true
+warn_unused_ignores = true
+no_implicit_optional = true
+show_error_codes = true
+
+[tool.snippet-fmt]
+directives = [ "code-block",]
+
+[tool.dependency-dash."requirements.txt"]
+order = 10
+
+[tool.snippet-fmt.languages.python]
+reformat = true
+
+[tool.snippet-fmt.languages.TOML]
+reformat = true
+
+[tool.snippet-fmt.languages.ini]
+
+[tool.snippet-fmt.languages.json]
