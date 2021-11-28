@@ -45,16 +45,14 @@ can be perfomed using the :func:`~astral.geocoder.lookup` function defined in
    removed.
 """
 
-import datetime
+import adafruit_datetime as datetime
 import re
-from dataclasses import dataclass
-from enum import Enum
-from typing import Optional, Tuple, Union
 
 try:
-    import pytz
+    from typing import Optional, Tuple, Union
+    Elevation = Union[float, Tuple[float, float]]
 except ImportError:
-    raise ImportError(("The astral module requires the pytz module to be available."))
+    Elevation = None
 
 
 __all__ = [
@@ -71,17 +69,15 @@ __version__ = "2.2"
 __author__ = "Simon Kennedy <sffjunkie+code@gmail.com>"
 
 
-Elevation = Union[float, Tuple[float, float]]
+def now() -> datetime.datetime:
+    """Returns the current time in UTC."""
+
+    return datetime.datetime.now()
 
 
-def now(tzinfo: datetime.tzinfo = pytz.utc) -> datetime.datetime:
-    """Returns the current time in the specified time zone"""
-    return pytz.utc.localize(datetime.datetime.utcnow()).astimezone(tzinfo)
-
-
-def today(tzinfo: datetime.tzinfo = pytz.utc) -> datetime.date:
-    """Returns the current date in the specified time zone"""
-    return now(tzinfo).date()
+def today() -> datetime.date:
+    """Returns the current date in UTC."""
+    return now().date()
 
 
 def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = None) -> float:
@@ -130,7 +126,7 @@ def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = Non
     return res
 
 
-class Depression(Enum):
+class Depression:
     """The depression angle in degrees for the dawn/dusk calculations"""
 
     CIVIL: float = 6.0
@@ -138,14 +134,13 @@ class Depression(Enum):
     ASTRONOMICAL: float = 18.0
 
 
-class SunDirection(Enum):
+class SunDirection:
     """Direction of the sun either RISING or SETTING"""
 
     RISING = 1
     SETTING = -1
 
 
-@dataclass
 class Observer:
     """Defines the location of an observer on Earth.
 
@@ -170,9 +165,19 @@ class Observer:
                     in metres above/below the location.
     """
 
-    latitude: float = 51.4733
-    longitude: float = -0.0008333
-    elevation: Elevation = 0.0
+    latitude: float
+    longitude: float
+    elevation: Elevation
+
+    def __init__(
+            self,
+            latitude: float = 51.4733,
+            longitude: float = -0.0008333,
+            elevation: Elevation = 0.0,
+            ) -> None:
+        self.latitude = latitude
+        self.longitude = longitude
+        self.elevation = elevation
 
     def __setattr__(self, name: str, value: Union[str, float, Elevation]):
         if name == "latitude":
@@ -187,7 +192,6 @@ class Observer:
         super().__setattr__(name, value)
 
 
-@dataclass
 class LocationInfo:
     """Defines a location on Earth.
 
@@ -207,11 +211,25 @@ class LocationInfo:
         longitude: Longitude - Eastern longitudes should be positive
     """
 
-    name: str = "Greenwich"
-    region: str = "England"
-    timezone: str = "Europe/London"
-    latitude: float = 51.4733
-    longitude: float = -0.0008333
+    name: str
+    region: str
+    timezone: str
+    latitude: float
+    longitude: float
+
+    def __init__(
+            self,
+            name: str = "Greenwich",
+            region: str = "England",
+            timezone: str = "Europe/London",
+            latitude: float = 51.4733,
+            longitude: float = -0.0008333,
+            ) -> None:
+        self.name = name
+        self.region = region
+        self.timezone = timezone
+        self.latitude = latitude
+        self.longitude = longitude
 
     def __setattr__(self, name: str, value: Union[float, str]):
         if name == "latitude":
@@ -225,10 +243,10 @@ class LocationInfo:
         """Return an Observer at this location"""
         return Observer(self.latitude, self.longitude, 0.0)
 
-    @property
-    def tzinfo(self):
-        """Return a pytz timezone for this location"""
-        return pytz.timezone(self.timezone)
+    # @property
+    # def tzinfo(self):
+    #     """Return a pytz timezone for this location"""
+    #     return pytz.timezone(self.timezone)
 
     @property
     def timezone_group(self):

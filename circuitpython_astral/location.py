@@ -2,11 +2,9 @@ import dataclasses
 import datetime
 from typing import Optional, Tuple, Union
 
-import pytz
-
-import astral.moon
-import astral.sun
-from astral import (
+import circuitpython_astral.moon
+import circuitpython_astral.sun
+from circuitpython_astral import (
     Depression,
     Elevation,
     LocationInfo,
@@ -242,9 +240,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.sun(observer, date, self.solar_depression, self.tzinfo)
+            return circuitpython_astral.sun.sun(observer, date, self.solar_depression, self.tzinfo)
         else:
-            return astral.sun.sun(observer, date, self.solar_depression)
+            return circuitpython_astral.sun.sun(observer, date, self.solar_depression)
 
     def dawn(
         self,
@@ -278,9 +276,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.dawn(observer, date, self.solar_depression, self.tzinfo)
+            return circuitpython_astral.sun.dawn(observer, date, self.solar_depression, self.tzinfo)
         else:
-            return astral.sun.dawn(observer, date, self.solar_depression)
+            return circuitpython_astral.sun.dawn(observer, date, self.solar_depression)
 
     def sunrise(
         self,
@@ -315,9 +313,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.sunrise(observer, date, self.tzinfo)
+            return circuitpython_astral.sun.sunrise(observer, date, self.tzinfo)
         else:
-            return astral.sun.sunrise(observer, date)
+            return circuitpython_astral.sun.sunrise(observer, date)
 
     def noon(self, date: datetime.date = None, local: bool = True) -> datetime.datetime:
         """Calculates the solar noon (the time when the sun is at its highest
@@ -341,9 +339,9 @@ class Location:
 
         observer = Observer(self.latitude, self.longitude)
         if local:
-            return astral.sun.noon(observer, date, self.tzinfo)
+            return circuitpython_astral.sun.noon(observer, date, self.tzinfo)
         else:
-            return astral.sun.noon(observer, date)
+            return circuitpython_astral.sun.noon(observer, date)
 
     def sunset(
         self,
@@ -376,9 +374,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.sunset(observer, date, self.tzinfo)
+            return circuitpython_astral.sun.sunset(observer, date, self.tzinfo)
         else:
-            return astral.sun.sunset(observer, date)
+            return circuitpython_astral.sun.sunset(observer, date)
 
     def dusk(
         self,
@@ -413,9 +411,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.dusk(observer, date, self.solar_depression, self.tzinfo)
+            return circuitpython_astral.sun.dusk(observer, date, self.solar_depression, self.tzinfo)
         else:
-            return astral.sun.dusk(observer, date, self.solar_depression)
+            return circuitpython_astral.sun.dusk(observer, date, self.solar_depression)
 
     def midnight(
         self, date: datetime.date = None, local: bool = True
@@ -442,9 +440,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude)
 
         if local:
-            return astral.sun.midnight(observer, date, self.tzinfo)
+            return circuitpython_astral.sun.midnight(observer, date, self.tzinfo)
         else:
-            return astral.sun.midnight(observer, date)
+            return circuitpython_astral.sun.midnight(observer, date)
 
     def daylight(
         self,
@@ -476,9 +474,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.daylight(observer, date, self.tzinfo)
+            return circuitpython_astral.sun.daylight(observer, date, self.tzinfo)
         else:
-            return astral.sun.daylight(observer, date)
+            return circuitpython_astral.sun.daylight(observer, date)
 
     def night(
         self,
@@ -511,9 +509,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.night(observer, date, self.tzinfo)
+            return circuitpython_astral.sun.night(observer, date, self.tzinfo)
         else:
-            return astral.sun.night(observer, date)
+            return circuitpython_astral.sun.night(observer, date)
 
     def twilight(
         self,
@@ -552,9 +550,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.twilight(observer, date, direction, self.tzinfo)
+            return circuitpython_astral.sun.twilight(observer, date, direction, self.tzinfo)
         else:
-            return astral.sun.twilight(observer, date, direction)
+            return circuitpython_astral.sun.twilight(observer, date, direction)
 
     def time_at_elevation(
         self,
@@ -600,11 +598,11 @@ class Location:
         observer = Observer(self.latitude, self.longitude, 0.0)
 
         if local:
-            return astral.sun.time_at_elevation(
+            return circuitpython_astral.sun.time_at_elevation(
                 observer, elevation, date, direction, self.tzinfo
             )
         else:
-            return astral.sun.time_at_elevation(observer, elevation, date, direction)
+            return circuitpython_astral.sun.time_at_elevation(observer, elevation, date, direction)
 
     def rahukaalam(
         self,
@@ -635,9 +633,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.rahukaalam(observer, date, self.tzinfo)
+            return circuitpython_astral.sun.rahukaalam(observer, date, self.tzinfo)
         else:
-            return astral.sun.rahukaalam(observer, date)
+            return circuitpython_astral.sun.rahukaalam(observer, date)
 
     def golden_hour(
         self,
@@ -678,9 +676,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.golden_hour(observer, date, direction, self.tzinfo)
+            return circuitpython_astral.sun.golden_hour(observer, date, direction, self.tzinfo)
         else:
-            return astral.sun.golden_hour(observer, date, direction)
+            return circuitpython_astral.sun.golden_hour(observer, date, direction)
 
     def blue_hour(
         self,
@@ -721,9 +719,9 @@ class Location:
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         if local:
-            return astral.sun.blue_hour(observer, date, direction, self.tzinfo)
+            return circuitpython_astral.sun.blue_hour(observer, date, direction, self.tzinfo)
         else:
-            return astral.sun.blue_hour(observer, date, direction)
+            return circuitpython_astral.sun.blue_hour(observer, date, direction)
 
     def solar_azimuth(
         self,
@@ -737,14 +735,14 @@ class Location:
         """
 
         if dateandtime is None:
-            dateandtime = astral.sun.now(self.tzinfo)
+            dateandtime = circuitpython_astral.sun.now(self.tzinfo)
         elif not dateandtime.tzinfo:
             dateandtime = self.tzinfo.localize(dateandtime)
 
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         dateandtime = dateandtime.astimezone(pytz.utc)  # type: ignore
-        return astral.sun.azimuth(observer, dateandtime)
+        return circuitpython_astral.sun.azimuth(observer, dateandtime)
 
     def solar_elevation(
         self,
@@ -759,14 +757,14 @@ class Location:
         """
 
         if dateandtime is None:
-            dateandtime = astral.sun.now(self.tzinfo)
+            dateandtime = circuitpython_astral.sun.now(self.tzinfo)
         elif not dateandtime.tzinfo:
             dateandtime = self.tzinfo.localize(dateandtime)
 
         observer = Observer(self.latitude, self.longitude, observer_elevation)
 
         dateandtime = dateandtime.astimezone(pytz.utc)  # type: ignore
-        return astral.sun.elevation(observer, dateandtime)
+        return circuitpython_astral.sun.elevation(observer, dateandtime)
 
     def solar_zenith(
         self, dateandtime: datetime.datetime, observer_elevation: Elevation = 0.0,
@@ -800,4 +798,4 @@ class Location:
         if date is None:
             date = self.today(local)
 
-        return astral.moon.phase(date)
+        return circuitpython_astral.moon.phase(date)

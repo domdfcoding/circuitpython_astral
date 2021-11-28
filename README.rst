@@ -97,3 +97,5 @@ circuitpython_astral
 
 Differences from Astral
 ---------------------------
+
+* No support for timezones due to a lack of support in CircuitPython.

@@ -1,4 +1,4 @@
-import datetime
+import adafruit_datetime as datetime
 from math import (
     acos,
     asin,
@@ -12,11 +12,14 @@ from math import (
     sqrt,
     tan,
 )
-from typing import Dict, Optional, Tuple, Union
 
-import pytz
+from micropython import const
+from circuitpython_astral import Depression, Observer, SunDirection, now, today
 
-from astral import Depression, Observer, SunDirection, now, today
+try:
+    from typing import Dict, Optional, Tuple, Union
+except ImportError:
+    pass
 
 __all__ = [
     "sun",
@@ -38,6 +41,32 @@ __all__ = [
     "time_at_elevation",
 ]
 
+_MAXORDINAL = const(3652059)
+
+
+def __sub__(self, other):
+    """Subtract two dates, or a date and a timedelta."""
+    if isinstance(other, datetime.timedelta):
+        return self + datetime.timedelta(-other.days)
+    if isinstance(other, datetime.date):
+        days1 = self.toordinal()
+        days2 = other.toordinal()
+        return datetime.timedelta(days1 - days2)
+    return NotImplemented
+
+
+def __add__(self, other):
+    """Add a date to a timedelta."""
+    if isinstance(other, datetime.timedelta):
+        o = self.toordinal() + other.days
+        if 0 < o <= _MAXORDINAL:
+            return type(self).fromordinal(o)
+        raise OverflowError("result out of range")
+    return NotImplemented
+
+
+datetime.date.__sub__ = __sub__
+datetime.date.__radd__ = datetime.date.__add__ = __add__
 
 # Using 32 arc minutes as sun's apparent diameter
 SUN_APPARENT_RADIUS = 32.0 / (60.0 * 2.0)
@@ -366,7 +395,6 @@ def time_of_transit(
 
     td = minutes_to_timedelta(timeUTC)
     dt = datetime.datetime(date.year, date.month, date.day) + td
-    dt = pytz.utc.localize(dt)  # pylint: disable=E1120
     return dt
 
 
@@ -375,7 +403,7 @@ def time_at_elevation(
     elevation: float,
     date: Optional[datetime.date] = None,
     direction: SunDirection = SunDirection.RISING,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
+    tzinfo: Union[str, datetime.tzinfo] = None,
 ) -> datetime.datetime:
     """Calculates the time when the sun is at the specified elevation on the specified date.
 
@@ -388,7 +416,7 @@ def time_at_elevation(
     Args:
         elevation: Elevation of the sun in degrees above the horizon to calculate for.
         observer:  Observer to calculate for
-        date:      Date to calculate for. Default is today's date in the timezone `tzinfo`.
+        date:      Date to calculate for. Default is today's date in UTC.
         direction: Determines whether the calculated time is for the sun rising or setting.
                    Use ``SunDirection.RISING`` or ``SunDirection.SETTING``. Default is rising.
         tzinfo:    Timezone to return times in. Default is UTC.
@@ -409,7 +437,7 @@ def time_at_elevation(
 
     zenith = 90 - elevation
     try:
-        return time_of_transit(observer, date, zenith, direction).astimezone(tzinfo)
+        return time_of_transit(observer, date, zenith, direction)
     except ValueError as exc:
         if exc.args[0] == "math domain error":
             raise ValueError(
@@ -423,23 +451,19 @@ def time_at_elevation(
 def noon(
     observer: Observer,
     date: Optional[datetime.date] = None,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> datetime.datetime:
     """Calculate solar noon time when the sun is at its highest point.
 
     Args:
         observer: An observer viewing the sun at a specific, latitude, longitude and elevation
-        date:     Date to calculate for. Default is today for the specified tzinfo.
-        tzinfo:   Timezone to return times in. Default is UTC.
+        date:     Date to calculate for. Default is today in UTC.
 
     Returns:
         Date and time at which noon occurs.
     """
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
 
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     jc = jday_to_jcentury(julianday(date))
     eqtime = eq_of_time(jc)
@@ -471,13 +495,12 @@ def noon(
         date -= datetime.timedelta(days=1)
 
     noon = datetime.datetime(date.year, date.month, date.day, hour, minute, second)
-    return pytz.utc.localize(noon).astimezone(tzinfo)  # pylint: disable=E1120
+    return noon  # pylint: disable=E1120
 
 
 def midnight(
     observer: Observer,
     date: Optional[datetime.date] = None,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> datetime.datetime:
     """Calculate solar midnight time.
 
@@ -488,17 +511,14 @@ def midnight(
 
     Args:
         observer: An observer viewing the sun at a specific, latitude, longitude and elevation
-        date:     Date to calculate for. Default is today for the specified tzinfo.
-        tzinfo:   Timezone to return times in. Default is UTC.
+        date:     Date to calculate for. Default is today in UTC.
 
     Returns:
         Date and time at which midnight occurs.
     """
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
 
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     jd = julianday(date)
     newt = jday_to_jcentury(jd + 0.5 + -observer.longitude / 360.0)
@@ -530,7 +550,7 @@ def midnight(
         date -= datetime.timedelta(days=1)
 
     midnight = datetime.datetime(date.year, date.month, date.day, hour, minute, second)
-    return pytz.utc.localize(midnight).astimezone(tzinfo)  # pylint: disable=E1120
+    return midnight  # pylint: disable=E1120
 
 
 def zenith_and_azimuth(
@@ -549,8 +569,7 @@ def zenith_and_azimuth(
         zone = 0.0
         utc_datetime = dateandtime
     else:
-        zone = -dateandtime.utcoffset().total_seconds() / 3600.0  # type: ignore
-        utc_datetime = dateandtime.astimezone(pytz.utc)
+        raise ValueError("Timezones are not supported.")
 
     timenow = (
         utc_datetime.hour
@@ -644,7 +663,7 @@ def zenith(
     """
 
     if dateandtime is None:
-        dateandtime = now(pytz.UTC)
+        dateandtime = now()
 
     return zenith_and_azimuth(observer, dateandtime, with_refraction)[0]
 
@@ -668,7 +687,7 @@ def azimuth(
     """
 
     if dateandtime is None:
-        dateandtime = now(pytz.UTC)
+        dateandtime = now()
 
     return zenith_and_azimuth(observer, dateandtime)[1]
 
@@ -692,7 +711,7 @@ def elevation(
     """
 
     if dateandtime is None:
-        dateandtime = now(pytz.UTC)
+        dateandtime = now()
 
     return 90.0 - zenith(observer, dateandtime, with_refraction)
 
@@ -701,16 +720,14 @@ def dawn(
     observer: Observer,
     date: Optional[datetime.date] = None,
     depression: Union[float, Depression] = Depression.CIVIL,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> datetime.datetime:
     """Calculate dawn time.
 
     Args:
         observer:   Observer to calculate dawn for
-        date:       Date to calculate for. Default is today's date in the timezone `tzinfo`.
+        date:       Date to calculate for. Default is today's date in UTC.
         depression: Number of degrees below the horizon to use to calculate dawn.
                     Default is for Civil dawn i.e. 6.0
-        tzinfo:     Timezone to return times in. Default is UTC.
 
     Returns:
         Date and time at which dawn occurs.
@@ -718,11 +735,9 @@ def dawn(
     Raises:
         ValueError: if dawn does not occur on the specified date
     """
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
 
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     dep: float = 0.0
     if isinstance(depression, Depression):
@@ -733,7 +748,7 @@ def dawn(
     try:
         return time_of_transit(
             observer, date, 90.0 + dep, SunDirection.RISING
-        ).astimezone(tzinfo)
+        )
     except ValueError as exc:
         if exc.args[0] == "math domain error":
             raise ValueError(
@@ -746,14 +761,12 @@ def dawn(
 def sunrise(
     observer: Observer,
     date: Optional[datetime.date] = None,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> datetime.datetime:
     """Calculate sunrise time.
 
     Args:
         observer: Observer to calculate sunrise for
-        date:     Date to calculate for. Default is today's date in the timezone `tzinfo`.
-        tzinfo:   Timezone to return times in. Default is UTC.
+        date:     Date to calculate for. Default is today's date in UTC.
 
     Returns:
         Date and time at which sunrise occurs.
@@ -761,16 +774,14 @@ def sunrise(
     Raises:
         ValueError: if the sun does not reach the horizon on the specified date
     """
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
 
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     try:
         return time_of_transit(
             observer, date, 90.0 + SUN_APPARENT_RADIUS, SunDirection.RISING,
-        ).astimezone(tzinfo)
+        )
     except ValueError as exc:
         if exc.args[0] == "math domain error":
             z = zenith(observer, noon(observer, date))
@@ -786,14 +797,12 @@ def sunrise(
 def sunset(
     observer: Observer,
     date: Optional[datetime.date] = None,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> datetime.datetime:
     """Calculate sunset time.
 
     Args:
         observer: Observer to calculate sunset for
-        date:     Date to calculate for. Default is today's date in the timezone `tzinfo`.
-        tzinfo:   Timezone to return times in. Default is UTC.
+        date:     Date to calculate for. Default is today's date in UTC.
 
     Returns:
         Date and time at which sunset occurs.
@@ -802,16 +811,13 @@ def sunset(
         ValueError: if the sun does not reach the horizon
     """
 
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
-
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     try:
         return time_of_transit(
             observer, date, 90.0 + SUN_APPARENT_RADIUS, SunDirection.SETTING,
-        ).astimezone(tzinfo)
+        )
     except ValueError as exc:
         if exc.args[0] == "math domain error":
             z = zenith(observer, noon(observer, date))
@@ -828,16 +834,14 @@ def dusk(
     observer: Observer,
     date: Optional[datetime.date] = None,
     depression: Union[float, Depression] = Depression.CIVIL,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> datetime.datetime:
     """Calculate dusk time.
 
     Args:
         observer:   Observer to calculate dusk for
-        date:       Date to calculate for. Default is today's date in the timezone `tzinfo`.
+        date:       Date to calculate for. Default is today's date in UTC.
         depression: Number of degrees below the horizon to use to calculate dusk.
                     Default is for Civil dusk i.e. 6.0
-        tzinfo:     Timezone to return times in. Default is UTC.
 
     Returns:
         Date and time at which dusk occurs.
@@ -846,11 +850,8 @@ def dusk(
         ValueError: if dusk does not occur on the specified date
     """
 
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
-
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     dep: float = 0.0
     if isinstance(depression, Depression):
@@ -861,7 +862,7 @@ def dusk(
     try:
         return time_of_transit(
             observer, date, 90.0 + dep, SunDirection.SETTING
-        ).astimezone(tzinfo)
+        )
     except ValueError as exc:
         if exc.args[0] == "math domain error":
             raise ValueError(
@@ -874,14 +875,12 @@ def dusk(
 def daylight(
     observer: Observer,
     date: Optional[datetime.date] = None,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> Tuple[datetime.datetime, datetime.datetime]:
     """Calculate daylight start and end times.
 
     Args:
         observer: Observer to calculate daylight for
-        date:     Date to calculate for. Default is today's date in the timezone `tzinfo`.
-        tzinfo:   Timezone to return times in. Default is UTC.
+        date:     Date to calculate for. Default is today's date in UTC.
 
     Returns:
         A tuple of the date and time at which daylight starts and ends.
@@ -889,14 +888,12 @@ def daylight(
     Raises:
         ValueError: if the sun does not rise or does not set
     """
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
 
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
-    start = sunrise(observer, date, tzinfo)
-    end = sunset(observer, date, tzinfo)
+    start = sunrise(observer, date)
+    end = sunset(observer, date)
 
     return start, end
 
@@ -904,7 +901,6 @@ def daylight(
 def night(
     observer: Observer,
     date: Optional[datetime.date] = None,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> Tuple[datetime.datetime, datetime.datetime]:
     """Calculate night start and end times.
 
@@ -915,7 +911,6 @@ def night(
         observer: Observer to calculate night for
         date:     Date to calculate for. Default is today's date for the
                   specified tzinfo.
-        tzinfo:   Timezone to return times in. Default is UTC.
 
     Returns:
         A tuple of the date and time at which night starts and ends.
@@ -924,15 +919,13 @@ def night(
         ValueError: if dawn does not occur on the specified date or
                     dusk on the following day
     """
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
 
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
-    start = dusk(observer, date, 6, tzinfo)
+    start = dusk(observer, date, 6)
     tomorrow = date + datetime.timedelta(days=1)
-    end = dawn(observer, tomorrow, 6, tzinfo)
+    end = dawn(observer, tomorrow, 6)
 
     return start, end
 
@@ -941,7 +934,6 @@ def twilight(
     observer: Observer,
     date: Optional[datetime.date] = None,
     direction: SunDirection = SunDirection.RISING,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> Tuple[datetime.datetime, datetime.datetime]:
     """Returns the start and end times of Twilight
     when the sun is traversing in the specified direction.
@@ -952,10 +944,9 @@ def twilight(
     Args:
         observer:  Observer to calculate twilight for
         date:      Date for which to calculate the times.
-                      Default is today's date in the timezone `tzinfo`.
+                      Default is today's date in UTC.
         direction: Determines whether the time is for the sun rising or setting.
                       Use ``astral.SunDirection.RISING`` or ``astral.SunDirection.SETTING``.
-        tzinfo:    Timezone to return times in. Default is UTC.
 
     Returns:
         A tuple of the date and time at which twilight starts and ends.
@@ -964,17 +955,14 @@ def twilight(
         ValueError: if the sun does not rise or does not set
     """
 
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
-
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
-    start = time_of_transit(observer, date, 90 + 6, direction).astimezone(tzinfo)
+    start = time_of_transit(observer, date, 90 + 6, direction)
     if direction == SunDirection.RISING:
-        end = sunrise(observer, date, tzinfo).astimezone(tzinfo)
+        end = sunrise(observer, date)
     else:
-        end = sunset(observer, date, tzinfo).astimezone(tzinfo)
+        end = sunset(observer, date)
 
     if direction == SunDirection.RISING:
         return start, end
@@ -986,7 +974,6 @@ def golden_hour(
     observer: Observer,
     date: Optional[datetime.date] = None,
     direction: SunDirection = SunDirection.RISING,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> Tuple[datetime.datetime, datetime.datetime]:
     """Returns the start and end times of the Golden Hour
     when the sun is traversing in the specified direction.
@@ -998,10 +985,9 @@ def golden_hour(
     Args:
         observer:  Observer to calculate the golden hour for
         date:      Date for which to calculate the times.
-                      Default is today's date in the timezone `tzinfo`.
+                      Default is today's date in UTC.
         direction: Determines whether the time is for the sun rising or setting.
                       Use ``SunDirection.RISING`` or ``SunDirection.SETTING``.
-        tzinfo:    Timezone to return times in. Default is UTC.
 
     Returns:
         A tuple of the date and time at which the Golden Hour starts and ends.
@@ -1010,14 +996,11 @@ def golden_hour(
         ValueError: if the sun does not transit the elevations -4 & +6 degrees
     """
 
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
-
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
-    start = time_of_transit(observer, date, 90 + 4, direction).astimezone(tzinfo)
-    end = time_of_transit(observer, date, 90 - 6, direction).astimezone(tzinfo)
+    start = time_of_transit(observer, date, 90 + 4, direction)
+    end = time_of_transit(observer, date, 90 - 6, direction)
 
     if direction == SunDirection.RISING:
         return start, end
@@ -1029,7 +1012,6 @@ def blue_hour(
     observer: Observer,
     date: Optional[datetime.date] = None,
     direction: SunDirection = SunDirection.RISING,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> Tuple[datetime.datetime, datetime.datetime]:
     """Returns the start and end times of the Blue Hour
     when the sun is traversing in the specified direction.
@@ -1040,10 +1022,9 @@ def blue_hour(
     Args:
         observer:  Observer to calculate the blue hour for
         date:      Date for which to calculate the times.
-                      Default is today's date in the timezone `tzinfo`.
+                      Default is today's date in UTC.
         direction: Determines whether the time is for the sun rising or setting.
                       Use ``SunDirection.RISING`` or ``SunDirection.SETTING``.
-        tzinfo:    Timezone to return times in. Default is UTC.
 
     Returns:
         A tuple of the date and time at which the Blue Hour starts and ends.
@@ -1052,14 +1033,11 @@ def blue_hour(
         ValueError: if the sun does not transit the elevations -4 & -6 degrees
     """
 
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
-
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
-    start = time_of_transit(observer, date, 90 + 6, direction).astimezone(tzinfo)
-    end = time_of_transit(observer, date, 90 + 4, direction).astimezone(tzinfo)
+    start = time_of_transit(observer, date, 90 + 6, direction)
+    end = time_of_transit(observer, date, 90 + 4, direction)
 
     if direction == SunDirection.RISING:
         return start, end
@@ -1071,15 +1049,13 @@ def rahukaalam(
     observer: Observer,
     date: Optional[datetime.date] = None,
     daytime: bool = True,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> Tuple[datetime.datetime, datetime.datetime]:
     """Calculate ruhakaalam times.
 
     Args:
         observer: Observer to calculate rahukaalam for
-        date:     Date to calculate for. Default is today's date in the timezone `tzinfo`.
+        date:     Date to calculate for. Default is today's date in UTC.
         daytime:  If True calculate for the day time else calculate for the night time.
-        tzinfo:   Timezone to return times in. Default is UTC.
 
     Returns:
         Tuple containing the start and end times for Rahukaalam.
@@ -1088,19 +1064,16 @@ def rahukaalam(
         ValueError: if the sun does not rise or does not set
     """
 
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
-
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     if daytime:
-        start = sunrise(observer, date, tzinfo)
-        end = sunset(observer, date, tzinfo)
+        start = sunrise(observer, date)
+        end = sunset(observer, date)
     else:
-        start = sunset(observer, date, tzinfo)
+        start = sunset(observer, date)
         oneday = datetime.timedelta(days=1)
-        end = sunrise(observer, date + oneday, tzinfo)
+        end = sunrise(observer, date + oneday)
 
     octant_duration = datetime.timedelta(seconds=(end - start).seconds / 8)
 
@@ -1120,17 +1093,15 @@ def sun(
     observer: Observer,
     date: Optional[datetime.date] = None,
     dawn_dusk_depression: Union[float, Depression] = Depression.CIVIL,
-    tzinfo: Union[str, datetime.tzinfo] = pytz.utc,
 ) -> Dict:
     """Calculate all the info for the sun at once.
 
     Args:
         observer:             Observer for which to calculate the times of the sun
         date:                 Date to calculate for.
-                              Default is today's date in the timezone `tzinfo`.
+                              Default is today's date in UTC.
         dawn_dusk_depression: Depression to use to calculate dawn and dusk.
                               Default is for Civil dusk i.e. 6.0
-        tzinfo:               Timezone to return times in. Default is UTC.
 
     Returns:
         Dictionary with keys ``dawn``, ``sunrise``, ``noon``, ``sunset`` and ``dusk``
@@ -1140,16 +1111,13 @@ def sun(
         ValueError: if passed through from any of the functions
     """
 
-    if isinstance(tzinfo, str):
-        tzinfo = pytz.timezone(tzinfo)
-
     if date is None:
-        date = today(tzinfo)
+        date = today()
 
     return {
-        "dawn": dawn(observer, date, dawn_dusk_depression, tzinfo),
-        "sunrise": sunrise(observer, date, tzinfo),
-        "noon": noon(observer, date, tzinfo),
-        "sunset": sunset(observer, date, tzinfo),
-        "dusk": dusk(observer, date, dawn_dusk_depression, tzinfo),
+        "dawn": dawn(observer, date, dawn_dusk_depression),
+        "sunrise": sunrise(observer, date),
+        "noon": noon(observer, date),
+        "sunset": sunset(observer, date),
+        "dusk": dusk(observer, date, dawn_dusk_depression),
     }
