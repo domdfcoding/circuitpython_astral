@@ -13,17 +13,19 @@ All locations stored in the database can be accessed using the `all_locations` g
         print(location)
 """
 
+# stdlib
 from functools import reduce
 
+# this package
 from circuitpython_astral import LocationInfo, dms_to_float
 
 try:
+    # stdlib
     from typing import Dict, Generator, List, Optional, Tuple, Union
 except ImportError:
     pass
 
 __all__ = ["lookup", "database", "add_locations", "all_locations"]
-
 
 # region Location Info
 # name,region,timezone,latitude,longitude,elevation
@@ -492,9 +494,7 @@ def _add_locations_from_str(location_string: str, db: LocationDatabase) -> None:
             _add_location_to_db(location, db)
 
 
-def _add_locations_from_list(
-    location_list: List[Union[Tuple, str]], db: LocationDatabase
-) -> None:
+def _add_locations_from_list(location_list: List[Union[Tuple, str]], db: LocationDatabase) -> None:
     """Add locations from a list of either strings or lists of strings or tuples of strings."""
     for info in location_list:
         if isinstance(info, str):

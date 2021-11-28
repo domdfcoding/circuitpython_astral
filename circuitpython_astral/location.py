@@ -1,18 +1,13 @@
+# stdlib
 import dataclasses
 import datetime
 from typing import Optional, Tuple, Union
 
+# this package
 import circuitpython_astral.moon
 import circuitpython_astral.sun
-from circuitpython_astral import (
-    Depression,
-    Elevation,
-    LocationInfo,
-    Observer,
-    SunDirection,
-    dms_to_float,
-    today,
-)
+from circuitpython_astral import Depression, Elevation, LocationInfo, Observer, SunDirection, dms_to_float, today
+
 
 
 class Location:
@@ -41,9 +36,7 @@ class Location:
         self._solar_depression: float = Depression.CIVIL.value
 
         if not info:
-            self._location_info = LocationInfo(
-                "Greenwich", "England", "Europe/London", 51.4733, -0.0008333
-            )
+            self._location_info = LocationInfo("Greenwich", "England", "Europe/London", 51.4733, -0.0008333)
         else:
             self._location_info = info
 
@@ -54,7 +47,7 @@ class Location:
 
     def __repr__(self) -> str:
         if self.region:
-            _repr = "%s/%s" % (self.name, self.region)
+            _repr = f"{self.name}/{self.region}"
         else:
             _repr = self.name
         return f"{_repr}, tz={self.timezone}, lat={self.latitude:0.02f}, lon={self.longitude:0.02f}"
@@ -62,8 +55,12 @@ class Location:
     @property
     def info(self) -> LocationInfo:
         return LocationInfo(
-            self.name, self.region, self.timezone, self.latitude, self.longitude,
-        )
+                self.name,
+                self.region,
+                self.timezone,
+                self.latitude,
+                self.longitude,
+                )
 
     @property
     def observer(self) -> Observer:
@@ -102,9 +99,7 @@ class Location:
 
     @latitude.setter
     def latitude(self, latitude: Union[float, str]) -> None:
-        self._location_info = dataclasses.replace(
-            self._location_info, latitude=dms_to_float(latitude, 90.0)
-        )
+        self._location_info = dataclasses.replace(self._location_info, latitude=dms_to_float(latitude, 90.0))
 
     @property
     def longitude(self) -> float:
@@ -123,9 +118,7 @@ class Location:
 
     @longitude.setter
     def longitude(self, longitude: Union[float, str]) -> None:
-        self._location_info = dataclasses.replace(
-            self._location_info, longitude=dms_to_float(longitude, 180.0)
-        )
+        self._location_info = dataclasses.replace(self._location_info, longitude=dms_to_float(longitude, 180.0))
 
     @property
     def timezone(self) -> str:
@@ -155,9 +148,7 @@ class Location:
             tz = pytz.timezone(self._location_info.timezone)
             return tz
         except pytz.UnknownTimeZoneError as exc:
-            raise ValueError(
-                "Unknown timezone '%s'" % self._location_info.timezone
-            ) from exc
+            raise ValueError("Unknown timezone '%s'" % self._location_info.timezone) from exc
 
     tz = tzinfo
 
@@ -191,12 +182,10 @@ class Location:
                 }[depression]
             except KeyError:
                 raise KeyError(
-                    (
                         "solar_depression must be either a number "
                         "or one of 'civil', 'nautical' or "
                         "'astronomical'"
-                    )
-                )
+                        )
         elif isinstance(depression, Depression):
             self._solar_depression = depression.value
         else:
@@ -415,9 +404,7 @@ class Location:
         else:
             return circuitpython_astral.sun.dusk(observer, date, self.solar_depression)
 
-    def midnight(
-        self, date: datetime.date = None, local: bool = True
-    ) -> datetime.datetime:
+    def midnight(self, date: datetime.date = None, local: bool = True) -> datetime.datetime:
         """Calculates the solar midnight (the time when the sun is at its lowest
         point.)
 
@@ -598,9 +585,7 @@ class Location:
         observer = Observer(self.latitude, self.longitude, 0.0)
 
         if local:
-            return circuitpython_astral.sun.time_at_elevation(
-                observer, elevation, date, direction, self.tzinfo
-            )
+            return circuitpython_astral.sun.time_at_elevation(observer, elevation, date, direction, self.tzinfo)
         else:
             return circuitpython_astral.sun.time_at_elevation(observer, elevation, date, direction)
 
@@ -767,8 +752,10 @@ class Location:
         return circuitpython_astral.sun.elevation(observer, dateandtime)
 
     def solar_zenith(
-        self, dateandtime: datetime.datetime, observer_elevation: Elevation = 0.0,
-    ) -> float:
+            self,
+            dateandtime: datetime.datetime,
+            observer_elevation: Elevation = 0.0,
+            ) -> float:
         """Calculates the solar zenith angle for a specific time.
 
         :param dateandtime: The date and time for which to calculate the angle.
@@ -777,9 +764,7 @@ class Location:
 
         return 90.0 - self.solar_elevation(dateandtime, observer_elevation)
 
-    def moon_phase(
-        self, date: datetime.date = None, local: bool = True
-    ):
+    def moon_phase(self, date: datetime.date = None, local: bool = True):
         """Calculates the moon phase for a specific date.
 
         :param date: The date to calculate the phase for. If ommitted the current date is used.

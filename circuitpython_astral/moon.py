@@ -1,10 +1,15 @@
-import adafruit_datetime as datetime
-from math import degrees, radians, sin, floor, ceil, fabs
+# stdlib
+from math import ceil, degrees, fabs, floor, radians, sin
 
+# 3rd party
+import adafruit_datetime as datetime
+
+# this package
 from circuitpython_astral import today
 from circuitpython_astral.sun import julianday
 
 try:
+    # stdlib
     from typing import Optional
 except ImportError:
     pass

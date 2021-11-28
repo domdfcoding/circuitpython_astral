@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2009-2021, Simon Kennedy, sffjunkie+code@gmail.com
 
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,15 +43,18 @@ can be perfomed using the :func:`~astral.geocoder.lookup` function defined in
    removed.
 """
 
-import adafruit_datetime as datetime
+# stdlib
 import re
 
+# 3rd party
+import adafruit_datetime as datetime
+
 try:
+    # stdlib
     from typing import Optional, Tuple, Union
     Elevation = Union[float, Tuple[float, float]]
 except ImportError:
     Elevation = None
-
 
 __all__ = [
     "Depression",
@@ -96,7 +97,7 @@ def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = Non
     """
 
     try:
-        res = float(dms) # type: ignore
+        res = float(dms)  # type: ignore
     except (ValueError, TypeError):
         _dms_re = r"(?P<deg>\d{1,3})[°]((?P<min>\d{1,2})[′'])?((?P<sec>\d{1,2})[″\"])?(?P<dir>[NSEW])?"
         m = re.match(_dms_re, str(dms), flags=re.IGNORECASE)

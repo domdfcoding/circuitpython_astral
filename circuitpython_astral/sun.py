@@ -1,22 +1,15 @@
-import adafruit_datetime as datetime
-from math import (
-    acos,
-    asin,
-    atan2,
-    cos,
-    degrees,
-    fabs,
-    floor,
-    radians,
-    sin,
-    sqrt,
-    tan,
-)
+# stdlib
+from math import acos, asin, atan2, cos, degrees, fabs, floor, radians, sin, sqrt, tan
 
-from micropython import const
+# 3rd party
+import adafruit_datetime as datetime
+from micropython import const  # nodep (CircuitPython builtin)
+
+# this package
 from circuitpython_astral import Depression, Observer, SunDirection, now, today
 
 try:
+    # stdlib
     from typing import Dict, Optional, Tuple, Union
 except ImportError:
     pass
@@ -137,10 +130,9 @@ def sun_eq_of_center(juliancentury: float) -> float:
     sin3m = sin(mrad + mrad + mrad)
 
     c = (
-        sinm * (1.914602 - juliancentury * (0.004817 + 0.000014 * juliancentury))
-        + sin2m * (0.019993 - 0.000101 * juliancentury)
-        + sin3m * 0.000289
-    )
+            sinm * (1.914602 - juliancentury * (0.004817 + 0.000014 * juliancentury)) + sin2m *
+            (0.019993 - 0.000101 * juliancentury) + sin3m * 0.000289
+            )
 
     return c
 
@@ -239,9 +231,7 @@ def eq_of_time(juliancentury: float) -> float:
     return degrees(Etime) * 4.0
 
 
-def hour_angle(
-    latitude: float, declination: float, zenith: float, direction: SunDirection
-) -> float:
+def hour_angle(latitude: float, declination: float, zenith: float, direction: SunDirection) -> float:
     """Calculate the hour angle of the sun
 
     See https://en.wikipedia.org/wiki/Hour_angle#Solar_hour_angle
@@ -265,9 +255,7 @@ def hour_angle(
     # t = tan(latitude_rad) * tan(declination_rad)
     # h = (n / d) - t
 
-    h = (cos(zenith_rad) - sin(latitude_rad) * sin(declination_rad)) / (
-        cos(latitude_rad) * cos(declination_rad)
-    )
+    h = (cos(zenith_rad) - sin(latitude_rad) * sin(declination_rad)) / (cos(latitude_rad) * cos(declination_rad))
 
     HA = acos(h)
     if direction == SunDirection.SETTING:
@@ -302,9 +290,7 @@ def adjust_to_obscuring_feature(elevation: Tuple[float, float]) -> float:
         return 0.0
 
     sign = -1 if elevation[0] < 0.0 else 1
-    return sign * degrees(
-        acos(fabs(elevation[0]) / sqrt(pow(elevation[0], 2) + pow(elevation[1], 2)))
-    )
+    return sign * degrees(acos(fabs(elevation[0]) / sqrt(pow(elevation[0], 2) + pow(elevation[1], 2))))
 
 
 def refraction_at_zenith(zenith: float) -> float:
@@ -317,9 +303,7 @@ def refraction_at_zenith(zenith: float) -> float:
     refractionCorrection = 0.0
     te = tan(radians(elevation))
     if elevation > 5.0:
-        refractionCorrection = (
-            58.1 / te - 0.07 / (te * te * te) + 0.000086 / (te * te * te * te * te)
-        )
+        refractionCorrection = (58.1 / te - 0.07 / (te * te * te) + 0.000086 / (te * te * te * te * te))
     elif elevation > -0.575:
         step1 = -12.79 + elevation * 0.711
         step2 = 103.4 + elevation * step1
@@ -554,8 +538,10 @@ def midnight(
 
 
 def zenith_and_azimuth(
-    observer: Observer, dateandtime: datetime.datetime, with_refraction: bool = True,
-) -> Tuple[float, float]:
+        observer: Observer,
+        dateandtime: datetime.datetime,
+        with_refraction: bool = True,
+        ) -> Tuple[float, float]:
     if observer.latitude > 89.8:
         latitude = 89.8
     elif observer.latitude < -89.8:
@@ -571,11 +557,7 @@ def zenith_and_azimuth(
     else:
         raise ValueError("Timezones are not supported.")
 
-    timenow = (
-        utc_datetime.hour
-        + (utc_datetime.minute / 60.0)
-        + (utc_datetime.second / 3600.0)
-    )
+    timenow = (utc_datetime.hour + (utc_datetime.minute / 60.0) + (utc_datetime.second / 3600.0))
 
     JD = julianday(dateandtime)
     t = jday_to_jcentury(JD + timenow / 24.0)
@@ -583,12 +565,7 @@ def zenith_and_azimuth(
     eqtime = eq_of_time(t)
 
     solarTimeFix = eqtime - (4.0 * -longitude) + (60 * zone)
-    trueSolarTime = (
-        dateandtime.hour * 60.0
-        + dateandtime.minute
-        + dateandtime.second / 60.0
-        + solarTimeFix
-    )
+    trueSolarTime = (dateandtime.hour * 60.0 + dateandtime.minute + dateandtime.second / 60.0 + solarTimeFix)
     #    in minutes as a float, fractional part is seconds
 
     while trueSolarTime > 1440:
@@ -746,14 +723,10 @@ def dawn(
         dep = depression
 
     try:
-        return time_of_transit(
-            observer, date, 90.0 + dep, SunDirection.RISING
-        )
+        return time_of_transit(observer, date, 90.0 + dep, SunDirection.RISING)
     except ValueError as exc:
         if exc.args[0] == "math domain error":
-            raise ValueError(
-                f"Sun never reaches {dep} degrees below the horizon, at this location."
-            ) from exc
+            raise ValueError(f"Sun never reaches {dep} degrees below the horizon, at this location.") from exc
         else:
             raise
 
@@ -780,8 +753,11 @@ def sunrise(
 
     try:
         return time_of_transit(
-            observer, date, 90.0 + SUN_APPARENT_RADIUS, SunDirection.RISING,
-        )
+                observer,
+                date,
+                90.0 + SUN_APPARENT_RADIUS,
+                SunDirection.RISING,
+                )
     except ValueError as exc:
         if exc.args[0] == "math domain error":
             z = zenith(observer, noon(observer, date))
@@ -816,8 +792,11 @@ def sunset(
 
     try:
         return time_of_transit(
-            observer, date, 90.0 + SUN_APPARENT_RADIUS, SunDirection.SETTING,
-        )
+                observer,
+                date,
+                90.0 + SUN_APPARENT_RADIUS,
+                SunDirection.SETTING,
+                )
     except ValueError as exc:
         if exc.args[0] == "math domain error":
             z = zenith(observer, noon(observer, date))
@@ -860,14 +839,10 @@ def dusk(
         dep = depression
 
     try:
-        return time_of_transit(
-            observer, date, 90.0 + dep, SunDirection.SETTING
-        )
+        return time_of_transit(observer, date, 90.0 + dep, SunDirection.SETTING)
     except ValueError as exc:
         if exc.args[0] == "math domain error":
-            raise ValueError(
-                f"Sun never reaches {dep} degrees below the horizon, at this location."
-            ) from exc
+            raise ValueError(f"Sun never reaches {dep} degrees below the horizon, at this location.") from exc
         else:
             raise
 
