@@ -11,7 +11,6 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
 """Calculations for the position of the sun and moon.
 
 The :mod:`astral` package provides the means to calculate the following times of the sun
@@ -50,39 +49,39 @@ import re
 import adafruit_datetime as datetime
 
 try:
-    # stdlib
-    from typing import Optional, Tuple, Union
-    Elevation = Union[float, Tuple[float, float]]
+	# stdlib
+	from typing import Optional, Tuple, Union
+	Elevation = Union[float, Tuple[float, float]]
 except ImportError:
-    Elevation = None
+	Elevation = None
 
 __all__ = [
-    "Depression",
-    "SunDirection",
-    "Observer",
-    "LocationInfo",
-    "now",
-    "today",
-    "dms_to_float",
-]
+		"Depression",
+		"SunDirection",
+		"Observer",
+		"LocationInfo",
+		"now",
+		"today",
+		"dms_to_float",
+		]
 
 __version__ = "2.2"
 __author__ = "Simon Kennedy <sffjunkie+code@gmail.com>"
 
 
 def now() -> datetime.datetime:
-    """Returns the current time in UTC."""
+	"""Returns the current time in UTC."""
 
-    return datetime.datetime.now()
+	return datetime.datetime.now()
 
 
 def today() -> datetime.date:
-    """Returns the current date in UTC."""
-    return now().date()
+	"""Returns the current date in UTC."""
+	return now().date()
 
 
 def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = None) -> float:
-    """Converts as string of the form `degrees°minutes'seconds"[N|S|E|W]`,
+	"""Converts as string of the form `degrees°minutes'seconds"[N|S|E|W]`,
     or a float encoded as a string, to a float
 
     N and E return positive values
@@ -96,54 +95,54 @@ def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = Non
         The number of degrees as a float
     """
 
-    try:
-        res = float(dms)  # type: ignore
-    except (ValueError, TypeError):
-        _dms_re = r"(?P<deg>\d{1,3})[°]((?P<min>\d{1,2})[′'])?((?P<sec>\d{1,2})[″\"])?(?P<dir>[NSEW])?"
-        m = re.match(_dms_re, str(dms), flags=re.IGNORECASE)
-        if m:
-            deg = m.group("deg") or 0.0
-            min_ = m.group("min") or 0.0
-            sec = m.group("sec") or 0.0
-            dir_ = m.group("dir") or "E"
+	try:
+		res = float(dms)  # type: ignore
+	except (ValueError, TypeError):
+		_dms_re = r"(?P<deg>\d{1,3})[°]((?P<min>\d{1,2})[′'])?((?P<sec>\d{1,2})[″\"])?(?P<dir>[NSEW])?"
+		m = re.match(_dms_re, str(dms), flags=re.IGNORECASE)
+		if m:
+			deg = m.group("deg") or 0.0
+			min_ = m.group("min") or 0.0
+			sec = m.group("sec") or 0.0
+			dir_ = m.group("dir") or 'E'
 
-            res = float(deg)
-            if min_:
-                res += float(min_) / 60
-            if sec:
-                res += float(sec) / 3600
+			res = float(deg)
+			if min_:
+				res += float(min_) / 60
+			if sec:
+				res += float(sec) / 3600
 
-            if dir_.upper() in ["S", "W"]:
-                res = -res
-        else:
-            raise ValueError("Unable to convert degrees/minutes/seconds to float")
+			if dir_.upper() in ['S', 'W']:
+				res = -res
+		else:
+			raise ValueError("Unable to convert degrees/minutes/seconds to float")
 
-    if limit:
-        if res > limit:
-            res = limit
-        elif res < -limit:
-            res = -limit
+	if limit:
+		if res > limit:
+			res = limit
+		elif res < -limit:
+			res = -limit
 
-    return res
+	return res
 
 
 class Depression:
-    """The depression angle in degrees for the dawn/dusk calculations"""
+	"""The depression angle in degrees for the dawn/dusk calculations"""
 
-    CIVIL: float = 6.0
-    NAUTICAL: float = 12.0
-    ASTRONOMICAL: float = 18.0
+	CIVIL: float = 6.0
+	NAUTICAL: float = 12.0
+	ASTRONOMICAL: float = 18.0
 
 
 class SunDirection:
-    """Direction of the sun either RISING or SETTING"""
+	"""Direction of the sun either RISING or SETTING"""
 
-    RISING = 1
-    SETTING = -1
+	RISING = 1
+	SETTING = -1
 
 
 class Observer:
-    """Defines the location of an observer on Earth.
+	"""Defines the location of an observer on Earth.
 
     Latitude and longitude can be set either as a float or as a string.
     For strings they must be of the form
@@ -166,35 +165,35 @@ class Observer:
                     in metres above/below the location.
     """
 
-    latitude: float
-    longitude: float
-    elevation: Elevation
+	latitude: float
+	longitude: float
+	elevation: Elevation
 
-    def __init__(
-            self,
-            latitude: float = 51.4733,
-            longitude: float = -0.0008333,
-            elevation: Elevation = 0.0,
-            ) -> None:
-        self.latitude = latitude
-        self.longitude = longitude
-        self.elevation = elevation
+	def __init__(
+			self,
+			latitude: float = 51.4733,
+			longitude: float = -0.0008333,
+			elevation: Elevation = 0.0,
+			) -> None:
+		self.latitude = latitude
+		self.longitude = longitude
+		self.elevation = elevation
 
-    def __setattr__(self, name: str, value: Union[str, float, Elevation]):
-        if name == "latitude":
-            value = dms_to_float(value, 90.0)
-        elif name == "longitude":
-            value = dms_to_float(value, 180.0)
-        elif name == "elevation":
-            if isinstance(value, tuple):
-                value = (float(value[0]), float(value[1]))
-            else:
-                value = float(value)
-        super().__setattr__(name, value)
+	def __setattr__(self, name: str, value: Union[str, float, Elevation]):
+		if name == "latitude":
+			value = dms_to_float(value, 90.0)
+		elif name == "longitude":
+			value = dms_to_float(value, 180.0)
+		elif name == "elevation":
+			if isinstance(value, tuple):
+				value = (float(value[0]), float(value[1]))
+			else:
+				value = float(value)
+		super().__setattr__(name, value)
 
 
 class LocationInfo:
-    """Defines a location on Earth.
+	"""Defines a location on Earth.
 
     Latitude and longitude can be set either as a float or as a string. For strings they must
     be of the form
@@ -212,43 +211,43 @@ class LocationInfo:
         longitude: Longitude - Eastern longitudes should be positive
     """
 
-    name: str
-    region: str
-    timezone: str
-    latitude: float
-    longitude: float
+	name: str
+	region: str
+	timezone: str
+	latitude: float
+	longitude: float
 
-    def __init__(
-            self,
-            name: str = "Greenwich",
-            region: str = "England",
-            timezone: str = "Europe/London",
-            latitude: float = 51.4733,
-            longitude: float = -0.0008333,
-            ) -> None:
-        self.name = name
-        self.region = region
-        self.timezone = timezone
-        self.latitude = latitude
-        self.longitude = longitude
+	def __init__(
+			self,
+			name: str = "Greenwich",
+			region: str = "England",
+			timezone: str = "Europe/London",
+			latitude: float = 51.4733,
+			longitude: float = -0.0008333,
+			) -> None:
+		self.name = name
+		self.region = region
+		self.timezone = timezone
+		self.latitude = latitude
+		self.longitude = longitude
 
-    def __setattr__(self, name: str, value: Union[float, str]):
-        if name == "latitude":
-            value = dms_to_float(value, 90.0)
-        elif name == "longitude":
-            value = dms_to_float(value, 180.0)
-        super().__setattr__(name, value)
+	def __setattr__(self, name: str, value: Union[float, str]):
+		if name == "latitude":
+			value = dms_to_float(value, 90.0)
+		elif name == "longitude":
+			value = dms_to_float(value, 180.0)
+		super().__setattr__(name, value)
 
-    @property
-    def observer(self):
-        """Return an Observer at this location"""
-        return Observer(self.latitude, self.longitude, 0.0)
+	@property
+	def observer(self):
+		"""Return an Observer at this location"""
+		return Observer(self.latitude, self.longitude, 0.0)
 
-    # @property
-    # def tzinfo(self):
-    #     """Return a pytz timezone for this location"""
-    #     return pytz.timezone(self.timezone)
+	# @property
+	# def tzinfo(self):
+	#     """Return a pytz timezone for this location"""
+	#     return pytz.timezone(self.timezone)
 
-    @property
-    def timezone_group(self):
-        return self.timezone.split("/")[0]
+	@property
+	def timezone_group(self):
+		return self.timezone.split('/')[0]
