@@ -7,9 +7,9 @@ name = "circuitpython_astral"
 version = "2.2"
 description = "Python calculations for the position of the sun and moon."
 readme = "README.rst"
+requires-python = ">=3.4"
 keywords = [ "circuitpython", "dawn", "dusk", "moon", "sun", "sunrise", "sunset",]
 dynamic = [ "classifiers", "dependencies",]
-requires-python = ">=3.4"
 
 [[project.authors]]
 name = "Simon Kennedy"

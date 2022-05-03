@@ -20,10 +20,10 @@ from functools import reduce
 from circuitpython_astral import LocationInfo, dms_to_float
 
 try:
-    # stdlib
-    from typing import Dict, Generator, List, Optional, Tuple, Union
+	# stdlib
+	from typing import Dict, Generator, List, Optional, Tuple, Union
 except ImportError:
-    pass
+	pass
 
 __all__ = ["lookup", "database", "add_locations", "all_locations"]
 
@@ -432,92 +432,92 @@ LocationDatabase = Dict[GroupName, GroupInfo[str, LocationInfoList]]
 
 
 def database() -> LocationDatabase:
-    """Returns a database populated with the inital set of locations stored
+	"""Returns a database populated with the inital set of locations stored
     in this module
     """
-    db: LocationDatabase = {}
-    _add_locations_from_str(_LOCATION_INFO, db)
-    return db
+	db: LocationDatabase = {}
+	_add_locations_from_str(_LOCATION_INFO, db)
+	return db
 
 
 def _sanitize_key(key) -> str:
-    """Sanitize the location or group key to look up
+	"""Sanitize the location or group key to look up
 
     Args:
         key: The key to sanitize
     """
-    return str(key).lower().replace(" ", "_")
+	return str(key).lower().replace(' ', '_')
 
 
 def _location_count(db: LocationDatabase) -> int:
-    """Returns the count of the locations currently in the database"""
-    return reduce(lambda count, group: count + len(group), db.values(), 0)
+	"""Returns the count of the locations currently in the database"""
+	return reduce(lambda count, group: count + len(group), db.values(), 0)
 
 
 def _get_group(name: str, db: LocationDatabase) -> Optional[GroupInfo]:
-    return db.get(name, None)
+	return db.get(name, None)
 
 
 def _add_location_to_db(location: LocationInfo, db: LocationDatabase) -> None:
-    """Add a single location to a database"""
-    key = _sanitize_key(location.timezone_group)
-    group = _get_group(key, db)
-    if not group:
-        group = {}
-        db[key] = group
+	"""Add a single location to a database"""
+	key = _sanitize_key(location.timezone_group)
+	group = _get_group(key, db)
+	if not group:
+		group = {}
+		db[key] = group
 
-    location_key = _sanitize_key(location.name)
-    if location_key not in group:
-        group[location_key] = [location]
-    else:
-        group[location_key].append(location)
+	location_key = _sanitize_key(location.name)
+	if location_key not in group:
+		group[location_key] = [location]
+	else:
+		group[location_key].append(location)
 
 
 def _indexable_to_locationinfo(idxable) -> LocationInfo:
-    return LocationInfo(
-        name=idxable[0],
-        region=idxable[1],
-        timezone=idxable[2],
-        latitude=dms_to_float(idxable[3], 90.0),
-        longitude=dms_to_float(idxable[4], 180.0),
-    )
+	return LocationInfo(
+			name=idxable[0],
+			region=idxable[1],
+			timezone=idxable[2],
+			latitude=dms_to_float(idxable[3], 90.0),
+			longitude=dms_to_float(idxable[4], 180.0),
+			)
 
 
 def _add_locations_from_str(location_string: str, db: LocationDatabase) -> None:
-    """Add locations from a string."""
+	"""Add locations from a string."""
 
-    for line in location_string.split("\n"):
-        line = line.strip()
-        if line != "" and line[0] != "#":
-            info = line.split(",")
-            location = _indexable_to_locationinfo(info)
-            _add_location_to_db(location, db)
+	for line in location_string.split('\n'):
+		line = line.strip()
+		if line != '' and line[0] != '#':
+			info = line.split(',')
+			location = _indexable_to_locationinfo(info)
+			_add_location_to_db(location, db)
 
 
 def _add_locations_from_list(location_list: List[Union[Tuple, str]], db: LocationDatabase) -> None:
-    """Add locations from a list of either strings or lists of strings or tuples of strings."""
-    for info in location_list:
-        if isinstance(info, str):
-            _add_locations_from_str(info, db)
-        elif isinstance(info, (list, tuple)):
-            location = _indexable_to_locationinfo(info)
-            _add_location_to_db(location, db)
+	"""Add locations from a list of either strings or lists of strings or tuples of strings."""
+	for info in location_list:
+		if isinstance(info, str):
+			_add_locations_from_str(info, db)
+		elif isinstance(info, (list, tuple)):
+			location = _indexable_to_locationinfo(info)
+			_add_location_to_db(location, db)
 
 
 def add_locations(locations: Union[List, str], db: LocationDatabase) -> None:
-    """Add locations to the database.
+	"""Add locations to the database.
 
     Locations can be added by passing either a string with one line per location or by passing
     a list containing strings, lists or tuples (lists and tuples are passed directly to the
     LocationInfo constructor)."""
-    if isinstance(locations, str):
-        _add_locations_from_str(locations, db)
-    elif isinstance(locations, (list, tuple)):
-        _add_locations_from_list(locations, db)
+	if isinstance(locations, str):
+		_add_locations_from_str(locations, db)
+	elif isinstance(locations, (list, tuple)):
+		_add_locations_from_list(locations, db)
 
 
 def group(region: str, db: LocationDatabase) -> GroupInfo:
-    """Access to each timezone group. For example London is in timezone
+	"""Access to each timezone group. For example London is in timezone
     group Europe.
 
     Lookups are case insensitive
@@ -528,16 +528,16 @@ def group(region: str, db: LocationDatabase) -> GroupInfo:
     Raises:
         KeyError: if the location is not found
     """
-    key = _sanitize_key(region)
-    for name, value in db.items():
-        if name == key:
-            return value
+	key = _sanitize_key(region)
+	for name, value in db.items():
+		if name == key:
+			return value
 
-    raise KeyError(f"Unrecognised Group - {region}")
+	raise KeyError(f"Unrecognised Group - {region}")
 
 
 def lookup_in_group(location: str, group: Dict) -> LocationInfo:
-    """Looks up the location within a group dictionary
+	"""Looks up the location within a group dictionary
 
     You can supply an optional region name by adding a comma
     followed by the region name. Where multiple locations have the
@@ -556,31 +556,31 @@ def lookup_in_group(location: str, group: Dict) -> LocationInfo:
     Raises:
         KeyError: if the location is not found
     """
-    key = _sanitize_key(location)
+	key = _sanitize_key(location)
 
-    try:
-        lookup_name, lookup_region = key.split(",", 1)
-    except ValueError:
-        lookup_name = key
-        lookup_region = ""
+	try:
+		lookup_name, lookup_region = key.split(',', 1)
+	except ValueError:
+		lookup_name = key
+		lookup_region = ''
 
-    lookup_name = lookup_name.strip("\"'")
-    lookup_region = lookup_region.strip("\"'")
+	lookup_name = lookup_name.strip("\"'")
+	lookup_region = lookup_region.strip("\"'")
 
-    for (location_name, location_list) in group.items():
-        if location_name == lookup_name:
-            if lookup_region == "":
-                return location_list[0]
+	for (location_name, location_list) in group.items():
+		if location_name == lookup_name:
+			if lookup_region == '':
+				return location_list[0]
 
-            for loc in location_list:
-                if _sanitize_key(loc.region) == lookup_region:
-                    return loc
+			for loc in location_list:
+				if _sanitize_key(loc.region) == lookup_region:
+					return loc
 
-    raise KeyError(f"Unrecognised location name - {key}")
+	raise KeyError(f"Unrecognised location name - {key}")
 
 
 def lookup(name: str, db: LocationDatabase) -> Union[Dict, LocationInfo]:
-    """Look up a name in a database.
+	"""Look up a name in a database.
 
     If a group with the name specified is a group name then that will
     be returned. If no group is found a location with the name will be
@@ -594,23 +594,22 @@ def lookup(name: str, db: LocationDatabase) -> Union[Dict, LocationInfo]:
         KeyError: if the name is not found
     """
 
-    key = _sanitize_key(name)
-    for group_key, group in db.items():
-        if group_key == key:
-            return group
+	key = _sanitize_key(name)
+	for group_key, group in db.items():
+		if group_key == key:
+			return group
 
-        try:
-            return lookup_in_group(name, group)
-        except KeyError:
-            pass
+		try:
+			return lookup_in_group(name, group)
+		except KeyError:
+			pass
 
-    raise KeyError(f"Unrecognised name - {name}")
+	raise KeyError(f"Unrecognised name - {name}")
 
 
 def all_locations(db: LocationDatabase) -> Generator[LocationInfo, None, None]:
-    """A generator that returns all the :class:`~astral.LocationInfo`\\s contained in the database
+	"""A generator that returns all the :class:`~astral.LocationInfo`\\s contained in the database
     """
-    for group_info in db.values():
-        for location_list in group_info.values():
-            for location in location_list:
-                yield location
+	for group_info in db.values():
+		for location_list in group_info.values():
+			yield from location_list
