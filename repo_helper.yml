@@ -13,6 +13,7 @@ enable_conda: false
 enable_docs: false
 enable_tests: false
 use_whey: true
+on_pypi: false
 
 keywords:
  - sun

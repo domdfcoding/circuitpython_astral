@@ -17,10 +17,8 @@ circuitpython_astral
 
 	* - Tests
 	  - |actions_linux| |actions_windows| |actions_macos|
-	* - PyPI
-	  - |pypi-version| |supported-versions| |supported-implementations| |wheel|
 	* - Activity
-	  - |commits-latest| |commits-since| |maintained| |pypi-downloads|
+	  - |commits-latest| |commits-since| |maintained|
 	* - QA
 	  - |codefactor| |actions_flake8| |actions_mypy|
 	* - Other
@@ -54,22 +52,6 @@ circuitpython_astral
 	:target: https://www.codefactor.io/repository/github/domdfcoding/circuitpython_astral
 	:alt: CodeFactor Grade
 
-.. |pypi-version| image:: https://img.shields.io/pypi/v/circuitpython_astral
-	:target: https://pypi.org/project/circuitpython_astral/
-	:alt: PyPI - Package Version
-
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/circuitpython_astral?logo=python&logoColor=white
-	:target: https://pypi.org/project/circuitpython_astral/
-	:alt: PyPI - Supported Python Versions
-
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/circuitpython_astral
-	:target: https://pypi.org/project/circuitpython_astral/
-	:alt: PyPI - Supported Implementations
-
-.. |wheel| image:: https://img.shields.io/pypi/wheel/circuitpython_astral
-	:target: https://pypi.org/project/circuitpython_astral/
-	:alt: PyPI - Wheel
-
 .. |license| image:: https://img.shields.io/github/license/domdfcoding/circuitpython_astral
 	:target: https://github.com/domdfcoding/circuitpython_astral/blob/master/LICENSE
 	:alt: License
@@ -87,10 +69,6 @@ circuitpython_astral
 
 .. |maintained| image:: https://img.shields.io/maintenance/yes/2023
 	:alt: Maintenance
-
-.. |pypi-downloads| image:: https://img.shields.io/pypi/dm/circuitpython_astral
-	:target: https://pypi.org/project/circuitpython_astral/
-	:alt: PyPI - Downloads
 
 .. end shields
 
