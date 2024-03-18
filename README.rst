@@ -67,7 +67,7 @@ circuitpython_astral
 	:target: https://github.com/domdfcoding/circuitpython_astral/commit/master
 	:alt: GitHub last commit
 
-.. |maintained| image:: https://img.shields.io/maintenance/yes/2023
+.. |maintained| image:: https://img.shields.io/maintenance/yes/2024
 	:alt: Maintenance
 
 .. end shields
