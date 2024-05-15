@@ -11,12 +11,12 @@ requires-python = ">=3.4"
 keywords = [ "circuitpython", "dawn", "dusk", "moon", "sun", "sunrise", "sunset",]
 dynamic = [ "classifiers", "dependencies",]
 
+[project.license]
+file = "LICENSE"
+
 [[project.authors]]
 name = "Simon Kennedy"
 email = "sffjunkie+code@gmail.com"
-
-[project.license]
-file = "LICENSE"
 
 [project.urls]
 Homepage = "https://github.com/domdfcoding/circuitpython_astral"
