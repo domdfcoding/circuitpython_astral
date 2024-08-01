@@ -3,14 +3,14 @@
 To get the :class:`~astral.LocationInfo` for a location use the
 :func:`~astral.geocoder.lookup` function e.g. ::
 
-    from astral.geocoder import lookup, database
-    l = lookup("London", database())
+	from astral.geocoder import lookup, database
+	l = lookup("London", database())
 
 All locations stored in the database can be accessed using the `all_locations` generator ::
 
-    from astral.geocoder import all_locations
-    for location in all_locations:
-        print(location)
+	from astral.geocoder import all_locations
+	for location in all_locations:
+		print(location)
 """
 
 # stdlib
@@ -21,7 +21,7 @@ from circuitpython_astral import LocationInfo, dms_to_float
 
 try:
 	# stdlib
-	from typing import Dict, Generator, List, Optional, Tuple, Union
+	from typing import Dict, Generator, List, Optional, Sequence, Tuple, Union
 except ImportError:
 	pass
 
@@ -432,25 +432,30 @@ LocationDatabase = Dict[GroupName, GroupInfo[str, LocationInfoList]]
 
 
 def database() -> LocationDatabase:
-	"""Returns a database populated with the inital set of locations stored
-    in this module
-    """
+	"""
+	Returns a database populated with the inital set of locations stored in this module.
+	"""
+
 	db: LocationDatabase = {}
 	_add_locations_from_str(_LOCATION_INFO, db)
 	return db
 
 
-def _sanitize_key(key) -> str:
-	"""Sanitize the location or group key to look up
+def _sanitize_key(key: str) -> str:
+	"""
+	Sanitize the location or group key to look up.
 
-    Args:
-        key: The key to sanitize
-    """
+	:param key: The key to sanitize.
+	"""
+
 	return str(key).lower().replace(' ', '_')
 
 
 def _location_count(db: LocationDatabase) -> int:
-	"""Returns the count of the locations currently in the database"""
+	"""
+	Returns the count of the locations currently in the database.
+	"""
+
 	return reduce(lambda count, group: count + len(group), db.values(), 0)
 
 
@@ -459,7 +464,10 @@ def _get_group(name: str, db: LocationDatabase) -> Optional[GroupInfo]:
 
 
 def _add_location_to_db(location: LocationInfo, db: LocationDatabase) -> None:
-	"""Add a single location to a database"""
+	"""
+	Add a single location to a database.
+	"""
+
 	key = _sanitize_key(location.timezone_group)
 	group = _get_group(key, db)
 	if not group:
@@ -473,7 +481,7 @@ def _add_location_to_db(location: LocationInfo, db: LocationDatabase) -> None:
 		group[location_key].append(location)
 
 
-def _indexable_to_locationinfo(idxable) -> LocationInfo:
+def _indexable_to_locationinfo(idxable: "Sequence") -> LocationInfo:
 	return LocationInfo(
 			name=idxable[0],
 			region=idxable[1],
@@ -505,11 +513,14 @@ def _add_locations_from_list(location_list: List[Union[Tuple, str]], db: Locatio
 
 
 def add_locations(locations: Union[List, str], db: LocationDatabase) -> None:
-	"""Add locations to the database.
+	"""
+	Add locations to the database.
 
-    Locations can be added by passing either a string with one line per location or by passing
-    a list containing strings, lists or tuples (lists and tuples are passed directly to the
-    LocationInfo constructor)."""
+	Locations can be added by passing either a string with one line per location or by passing
+	a list containing strings, lists or tuples (lists and tuples are passed directly to the
+	LocationInfo constructor).
+	"""
+
 	if isinstance(locations, str):
 		_add_locations_from_str(locations, db)
 	elif isinstance(locations, (list, tuple)):
@@ -517,17 +528,15 @@ def add_locations(locations: Union[List, str], db: LocationDatabase) -> None:
 
 
 def group(region: str, db: LocationDatabase) -> GroupInfo:
-	"""Access to each timezone group. For example London is in timezone
-    group Europe.
+	"""
+	Access to each timezone group. For example London is in timezone group Europe.
 
-    Lookups are case insensitive
+	Lookups are case insensitive
 
-    Args:
-        region: the name to look up
+	:param region: the name to look up
 
-    Raises:
-        KeyError: if the location is not found
-    """
+	:raises KeyError: if the location is not found
+	"""
 	key = _sanitize_key(region)
 	for name, value in db.items():
 		if name == key:
@@ -537,25 +546,24 @@ def group(region: str, db: LocationDatabase) -> GroupInfo:
 
 
 def lookup_in_group(location: str, group: Dict) -> LocationInfo:
-	"""Looks up the location within a group dictionary
+	"""
+	Looks up the location within a group dictionary.
 
-    You can supply an optional region name by adding a comma
-    followed by the region name. Where multiple locations have the
-    same name you may need to supply the region name otherwise
-    the first result will be returned which may not be the one
-    you're looking for::
+	You can supply an optional region name by adding a comma
+	followed by the region name. Where multiple locations have the
+	same name you may need to supply the region name otherwise
+	the first result will be returned which may not be the one
+	you're looking for::
 
-        location = group['Abu Dhabi,United Arab Emirates']
+		location = group['Abu Dhabi,United Arab Emirates']
 
-    Lookups are case insensitive.
+	Lookups are case insensitive.
 
-    Args:
-        location: The location to look up
-        group: The location group to look in
+	:param location: The location to look up
+	:param group: The location group to look in
 
-    Raises:
-        KeyError: if the location is not found
-    """
+	:raises KeyError: if the location is not found
+	"""
 	key = _sanitize_key(location)
 
 	try:
@@ -580,19 +588,18 @@ def lookup_in_group(location: str, group: Dict) -> LocationInfo:
 
 
 def lookup(name: str, db: LocationDatabase) -> Union[Dict, LocationInfo]:
-	"""Look up a name in a database.
+	"""
+	Look up a name in a database.
 
-    If a group with the name specified is a group name then that will
-    be returned. If no group is found a location with the name will be
-    looked up.
+	If a group with the name specified is a group name then that will
+	be returned. If no group is found a location with the name will be
+	looked up.
 
-    Args:
-        name: The group/location name to look up
-        db:   The location database to look in
+	:param name: The group/location name to look up
+	:param db:   The location database to look in
 
-    Raises:
-        KeyError: if the name is not found
-    """
+	:raises KeyError: if the name is not found
+	"""
 
 	key = _sanitize_key(name)
 	for group_key, group in db.items():
@@ -608,8 +615,10 @@ def lookup(name: str, db: LocationDatabase) -> Union[Dict, LocationInfo]:
 
 
 def all_locations(db: LocationDatabase) -> Generator[LocationInfo, None, None]:
-	"""A generator that returns all the :class:`~astral.LocationInfo`\\s contained in the database
-    """
+	r"""
+	A generator that returns all the :class:`~astral.LocationInfo`\s contained in the database.
+	"""
+
 	for group_info in db.values():
 		for location_list in group_info.values():
 			yield from location_list

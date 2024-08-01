@@ -49,22 +49,21 @@ def _phase_asfloat(date: datetime.date) -> float:
 
 
 def phase(date: Optional[datetime.date] = None) -> float:
-	"""Calculates the phase of the moon on the specified date.
+	"""
+	Calculates the phase of the moon on the specified date.
 
-    Args:
-        date: The date to calculate the phase for. Dates are always in the UTC timezone.
-              If not specified then today's date is used.
+	:param date: The date to calculate the phase for. Dates are always in the UTC timezone.
+		If not specified then today's date is used.
 
-    Returns:
-        A number designating the phase.
+	:returns: A number designating the phase.
 
-        ============  ==============
-        0 .. 6.99     New moon
-        7 .. 13.99    First quarter
-        14 .. 20.99   Full moon
-        21 .. 27.99   Last quarter
-        ============  ==============
-    """
+		============  ==============
+		0 .. 6.99     New moon
+		7 .. 13.99    First quarter
+		14 .. 20.99   Full moon
+		21 .. 27.99   Last quarter
+		============  ==============
+	"""
 
 	if date is None:
 		date = today()

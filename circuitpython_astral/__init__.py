@@ -81,19 +81,17 @@ def today() -> datetime.date:
 
 
 def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = None) -> float:
-	"""Converts as string of the form `degrees°minutes'seconds"[N|S|E|W]`,
-    or a float encoded as a string, to a float
+	"""
+	Converts as string of the form `degrees°minutes'seconds"[N|S|E|W]`, or a float encoded as a string, to a float.
 
-    N and E return positive values
-    S and W return negative values
+	N and E return positive values
+	S and W return negative values
 
-    Args:
-        dms: string to convert
-        limit: Limit the value between ± `limit`
+	:param dms: string to convert
+	:param limit: Limit the value between ± `limit`
 
-    Returns:
-        The number of degrees as a float
-    """
+	:returns: The number of degrees as a float
+	"""
 
 	try:
 		res = float(dms)  # type: ignore
@@ -127,7 +125,9 @@ def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = Non
 
 
 class Depression:
-	"""The depression angle in degrees for the dawn/dusk calculations"""
+	"""
+	The depression angle in degrees for the dawn/dusk calculations.
+	"""
 
 	CIVIL: float = 6.0
 	NAUTICAL: float = 12.0
@@ -135,35 +135,36 @@ class Depression:
 
 
 class SunDirection:
-	"""Direction of the sun either RISING or SETTING"""
+	"""
+	Direction of the sun either RISING or SETTING.
+	"""
 
 	RISING = 1
 	SETTING = -1
 
 
 class Observer:
-	"""Defines the location of an observer on Earth.
+	"""
+	Defines the location of an observer on Earth.
 
-    Latitude and longitude can be set either as a float or as a string.
-    For strings they must be of the form
+	Latitude and longitude can be set either as a float or as a string.
+	For strings they must be of the form
 
-        degrees°minutes'seconds"[N|S|E|W] e.g. 51°31'N
+		degrees°minutes'seconds"[N|S|E|W] e.g. 51°31'N
 
-    `minutes’` & `seconds”` are optional.
+	`minutes’` & `seconds”` are optional.
 
-    Elevations are either
+	Elevations are either
 
-    * A float that is the elevation in metres above a location, if the nearest
-      obscuring feature is the horizon
-    * or a tuple of the elevation in metres and the distance in metres to the
-      nearest obscuring feature.
+	* A float that is the elevation in metres above a location, if the nearest
+	  obscuring feature is the horizon
+	* or a tuple of the elevation in metres and the distance in metres to the
+	  nearest obscuring feature.
 
-    Args:
-        latitude:   Latitude - Northern latitudes should be positive
-        longitude:  Longitude - Eastern longitudes should be positive
-        elevation:  Elevation and/or distance to nearest obscuring feature
-                    in metres above/below the location.
-    """
+	:param latitude: Latitude - Northern latitudes should be positive.
+	:param longitude: Longitude - Eastern longitudes should be positive.
+	:param elevation: Elevation and/or distance to nearest obscuring feature in metres above/below the location.
+	"""
 
 	latitude: float
 	longitude: float
@@ -179,7 +180,7 @@ class Observer:
 		self.longitude = longitude
 		self.elevation = elevation
 
-	def __setattr__(self, name: str, value: Union[str, float, Elevation]):
+	def __setattr__(self, name: str, value: Union[str, float, Elevation]) -> None:
 		if name == "latitude":
 			value = dms_to_float(value, 90.0)
 		elif name == "longitude":
@@ -193,23 +194,22 @@ class Observer:
 
 
 class LocationInfo:
-	"""Defines a location on Earth.
+	"""
+	Defines a location on Earth.
 
-    Latitude and longitude can be set either as a float or as a string. For strings they must
-    be of the form
+	Latitude and longitude can be set either as a float or as a string. For strings they must
+	be of the form
 
-        degrees°minutes'seconds"[N|S|E|W] e.g. 51°31'N
+		degrees°minutes'seconds"[N|S|E|W] e.g. 51°31'N
 
-    `minutes’` & `seconds”` are optional.
+	`minutes’` & `seconds”` are optional.
 
-    Args:
-        name:      Location name (can be any string)
-        region:    Region location is in (can be any string)
-        timezone:  The location's time zone (a list of time zone names can be obtained from
-                      `pytz.all_timezones`)
-        latitude:  Latitude - Northern latitudes should be positive
-        longitude: Longitude - Eastern longitudes should be positive
-    """
+	:param name: Location name (can be any string)
+	:param region: Region location is in (can be any string)
+	:param timezone: The location's time zone (a list of time zone names can be obtained from `pytz.all_timezones`)
+	:param latitude: Latitude - Northern latitudes should be positive
+	:param longitude: Longitude - Eastern longitudes should be positive
+	"""
 
 	name: str
 	region: str
@@ -231,7 +231,7 @@ class LocationInfo:
 		self.latitude = latitude
 		self.longitude = longitude
 
-	def __setattr__(self, name: str, value: Union[float, str]):
+	def __setattr__(self, name: str, value: Union[float, str]) -> None:
 		if name == "latitude":
 			value = dms_to_float(value, 90.0)
 		elif name == "longitude":
@@ -239,15 +239,18 @@ class LocationInfo:
 		super().__setattr__(name, value)
 
 	@property
-	def observer(self):
-		"""Return an Observer at this location"""
+	def observer(self) -> Observer:
+		"""
+		Return an Observer at this location.
+		"""
+
 		return Observer(self.latitude, self.longitude, 0.0)
 
 	# @property
 	# def tzinfo(self):
-	#     """Return a pytz timezone for this location"""
-	#     return pytz.timezone(self.timezone)
+	# 	"""Return a pytz timezone for this location"""
+	# 	return pytz.timezone(self.timezone)
 
 	@property
-	def timezone_group(self):
+	def timezone_group(self) -> str:
 		return self.timezone.split('/')[0]

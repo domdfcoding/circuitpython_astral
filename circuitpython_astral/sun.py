@@ -38,7 +38,10 @@ _MAXORDINAL = const(3652059)
 
 
 def __sub__(self, other):
-	"""Subtract two dates, or a date and a timedelta."""
+	"""
+	Subtract two dates, or a date and a timedelta.
+	"""
+
 	if isinstance(other, datetime.timedelta):
 		return self + datetime.timedelta(-other.days)
 	if isinstance(other, datetime.date):
@@ -66,7 +69,10 @@ SUN_APPARENT_RADIUS = 32.0 / (60.0 * 2.0)
 
 
 def julianday(date: datetime.date) -> float:
-	"""Calculate the Julian Day for the specified date"""
+	"""
+	Calculate the Julian Day for the specified date.
+	"""
+
 	y = date.year
 	m = date.month
 	d = date.day
@@ -83,7 +89,10 @@ def julianday(date: datetime.date) -> float:
 
 
 def minutes_to_timedelta(minutes: float) -> datetime.timedelta:
-	"""Convert a floating point number of minutes to a :class:`~datetime.timedelta`"""
+	"""
+	Convert a floating point number of minutes to a :class:`~datetime.timedelta`.
+	"""
+
 	d = int(minutes / 1440)
 	minutes = minutes - (d * 1440)
 	minutes = minutes * 60
@@ -95,33 +104,51 @@ def minutes_to_timedelta(minutes: float) -> datetime.timedelta:
 
 
 def jday_to_jcentury(julianday: float) -> float:
-	"""Convert a Julian Day number to a Julian Century"""
+	"""
+	Convert a Julian Day number to a Julian Century.
+	"""
+
 	return (julianday - 2451545.0) / 36525.0
 
 
 def jcentury_to_jday(juliancentury: float) -> float:
-	"""Convert a Julian Century number to a Julian Day"""
+	"""
+	Convert a Julian Century number to a Julian Day.
+	"""
+
 	return (juliancentury * 36525.0) + 2451545.0
 
 
 def geom_mean_long_sun(juliancentury: float) -> float:
-	"""Calculate the geometric mean longitude of the sun"""
+	"""
+	Calculate the geometric mean longitude of the sun.
+	"""
+
 	l0 = 280.46646 + juliancentury * (36000.76983 + 0.0003032 * juliancentury)
 	return l0 % 360.0
 
 
 def geom_mean_anomaly_sun(juliancentury: float) -> float:
-	"""Calculate the geometric mean anomaly of the sun"""
+	"""
+	Calculate the geometric mean anomaly of the sun.
+	"""
+
 	return 357.52911 + juliancentury * (35999.05029 - 0.0001537 * juliancentury)
 
 
 def eccentric_location_earth_orbit(juliancentury: float) -> float:
-	"""Calculate the eccentricity of Earth's orbit"""
+	"""
+	Calculate the eccentricity of Earth's orbit.
+	"""
+
 	return 0.016708634 - juliancentury * (0.000042037 + 0.0000001267 * juliancentury)
 
 
 def sun_eq_of_center(juliancentury: float) -> float:
-	"""Calculate the equation of the center of the sun"""
+	"""
+	Calculate the equation of the center of the sun.
+	"""
+
 	m = geom_mean_anomaly_sun(juliancentury)
 
 	mrad = radians(m)
@@ -138,7 +165,10 @@ def sun_eq_of_center(juliancentury: float) -> float:
 
 
 def sun_true_long(juliancentury: float) -> float:
-	"""Calculate the sun's true longitude"""
+	"""
+	Calculate the sun's true longitude.
+	"""
+
 	l0 = geom_mean_long_sun(juliancentury)
 	c = sun_eq_of_center(juliancentury)
 
@@ -146,7 +176,10 @@ def sun_true_long(juliancentury: float) -> float:
 
 
 def sun_true_anomoly(juliancentury: float) -> float:
-	"""Calculate the sun's true anomaly"""
+	"""
+	Calculate the sun's true anomaly.
+	"""
+
 	m = geom_mean_anomaly_sun(juliancentury)
 	c = sun_eq_of_center(juliancentury)
 
@@ -180,7 +213,10 @@ def obliquity_correction(juliancentury: float) -> float:
 
 
 def sun_rt_ascension(juliancentury: float) -> float:
-	"""Calculate the sun's right ascension"""
+	"""
+	Calculate the sun's right ascension.
+	"""
+
 	oc = obliquity_correction(juliancentury)
 	al = sun_apparent_long(juliancentury)
 
@@ -191,7 +227,10 @@ def sun_rt_ascension(juliancentury: float) -> float:
 
 
 def sun_declination(juliancentury: float) -> float:
-	"""Calculate the sun's declination"""
+	"""
+	Calculate the sun's declination.
+	"""
+
 	e = obliquity_correction(juliancentury)
 	lambd = sun_apparent_long(juliancentury)
 
@@ -225,20 +264,19 @@ def eq_of_time(juliancentury: float) -> float:
 	return degrees(Etime) * 4.0
 
 
-def hour_angle(latitude: float, declination: float, zenith: float, direction: SunDirection) -> float:
-	"""Calculate the hour angle of the sun
+def hour_angle(latitude: float, declination: float, zenith: float, direction: int) -> float:
+	"""
+	Calculate the hour angle of the sun.
 
-    See https://en.wikipedia.org/wiki/Hour_angle#Solar_hour_angle
+	See https://en.wikipedia.org/wiki/Hour_angle#Solar_hour_angle
 
-    Args:
-        latitude: The latitude of the obersver
-        declination: The declination of the sun
-        zenith: The zenith angle of the sun
-        direction: The direction of traversal of the sun
+	:param latitude: The latitude of the obersver
+	:param declination: The declination of the sun
+	:param zenith: The zenith angle of the sun
+	:param direction: The direction of traversal of the sun
 
-    Raises:
-        ValueError
-    """
+	:raises ValueError:
+	"""
 
 	latitude_rad = radians(latitude)
 	declination_rad = radians(declination)
@@ -258,15 +296,13 @@ def hour_angle(latitude: float, declination: float, zenith: float, direction: Su
 
 
 def adjust_to_horizon(elevation: float) -> float:
-	"""Calculate the extra degrees of depression that you can see round the earth
-    due to the increase in elevation.
+	"""
+	Calculate the extra degrees of depression that you can see round the earth due to the increase in elevation.
 
-    Args:
-        elevation: Elevation above the earth in metres
+	:param elevation: Elevation above the earth in metres
 
-    Returns:
-        A number of degrees to add to adjust for the elevation of the observer
-    """
+	:returns: A number of degrees to add to adjust for the elevation of the observer
+	"""
 
 	if elevation <= 0:
 		return 0
@@ -312,22 +348,22 @@ def refraction_at_zenith(zenith: float) -> float:
 
 
 def time_of_transit(
-		observer: Observer, date: datetime.date, zenith: float, direction: SunDirection
+		observer: Observer,
+		date: datetime.date,
+		zenith: float,
+		direction: int,
 		) -> datetime.datetime:
 	"""Calculate the time in the UTC timezone when the sun transits the specificed zenith
 
-    Args:
-        observer: An observer viewing the sun at a specific, latitude, longitude and elevation
-        date: The date to calculate for
-        zenith: The zenith angle for which to calculate the transit time
-        direction: The direction that the sun is traversing
+	:param observer: An observer viewing the sun at a specific, latitude, longitude and elevation
+	:param date: The date to calculate for
+	:param zenith: The zenith angle for which to calculate the transit time
+	:param direction: The direction that the sun is traversing
 
-    Raises:
-        ValueError if the zenith is not transitted by the sun
+	:raises ValueError: if the zenith is not transitted by the sun
 
-    Returns:
-        the time when the sun transits the specificed zenith
-    """
+	:returns: the time when the sun transits the specificed zenith
+	"""
 	if observer.latitude > 89.8:
 		latitude = 89.8
 	elif observer.latitude < -89.8:
@@ -380,28 +416,26 @@ def time_at_elevation(
 		observer: Observer,
 		elevation: float,
 		date: Optional[datetime.date] = None,
-		direction: SunDirection = SunDirection.RISING,
+		direction: int = SunDirection.RISING,
 		tzinfo: Union[str, datetime.tzinfo] = None,
 		) -> datetime.datetime:
 	"""Calculates the time when the sun is at the specified elevation on the specified date.
 
-    Note:
-        This method uses positive elevations for those above the horizon.
+	Note:
+		This method uses positive elevations for those above the horizon.
 
-        Elevations greater than 90 degrees are converted to a setting sun
-        i.e. an elevation of 110 will calculate a setting sun at 70 degrees.
+		Elevations greater than 90 degrees are converted to a setting sun
+		i.e. an elevation of 110 will calculate a setting sun at 70 degrees.
 
-    Args:
-        elevation: Elevation of the sun in degrees above the horizon to calculate for.
-        observer:  Observer to calculate for
-        date:      Date to calculate for. Default is today's date in UTC.
-        direction: Determines whether the calculated time is for the sun rising or setting.
-                   Use ``SunDirection.RISING`` or ``SunDirection.SETTING``. Default is rising.
-        tzinfo:    Timezone to return times in. Default is UTC.
+	:param elevation: Elevation of the sun in degrees above the horizon to calculate for.
+	:param observer: Observer to calculate for
+	:param date: Date to calculate for. Default is today's date in UTC.
+	:param direction: Determines whether the calculated time is for the sun rising or setting.
+		Use ``SunDirection.RISING`` or ``SunDirection.SETTING``. Default is rising.
+	:param tzinfo: Timezone to return times in. Default is UTC.
 
-    Returns:
-        Date and time at which the sun is at the specified elevation.
-    """
+	:returns: Date and time at which the sun is at the specified elevation.
+	"""
 
 	if elevation > 90.0:
 		elevation = 180.0 - elevation
@@ -432,13 +466,11 @@ def noon(
 		) -> datetime.datetime:
 	"""Calculate solar noon time when the sun is at its highest point.
 
-    Args:
-        observer: An observer viewing the sun at a specific, latitude, longitude and elevation
-        date:     Date to calculate for. Default is today in UTC.
+	:param observer: An observer viewing the sun at a specific, latitude, longitude and elevation
+	:param date: Date to calculate for. Default is today in UTC.
 
-    Returns:
-        Date and time at which noon occurs.
-    """
+	:returns: Date and time at which noon occurs.
+	"""
 
 	if date is None:
 		date = today()
@@ -482,18 +514,16 @@ def midnight(
 		) -> datetime.datetime:
 	"""Calculate solar midnight time.
 
-    Note:
-        This calculates the solar midnight that is closest
-        to 00:00:00 of the specified date i.e. it may return a time that is on
-        the previous day.
+	Note:
+		This calculates the solar midnight that is closest
+		to 00:00:00 of the specified date i.e. it may return a time that is on
+		the previous day.
 
-    Args:
-        observer: An observer viewing the sun at a specific, latitude, longitude and elevation
-        date:     Date to calculate for. Default is today in UTC.
+	:param observer: An observer viewing the sun at a specific, latitude, longitude and elevation
+	:param date: Date to calculate for. Default is today in UTC.
 
-    Returns:
-        Date and time at which midnight occurs.
-    """
+	:returns: Date and time at which midnight occurs.
+	"""
 
 	if date is None:
 		date = today()
@@ -619,16 +649,13 @@ def zenith(
 		) -> float:
 	"""Calculate the zenith angle of the sun.
 
-    Args:
-        observer:    Observer to calculate the solar zenith for
-        dateandtime: The date and time for which to calculate the angle.
-                     If `dateandtime` is None or is a naive Python datetime
-                     then it is assumed to be in the UTC timezone.
-        with_refraction: If True adjust zenith to take refraction into account
+	:param observer: Observer to calculate the solar zenith for.
+	:param dateandtime: The date and time for which to calculate the angle.
+		If `dateandtime` is None or is a naive Python datetime then it is assumed to be in the UTC timezone.
+	:param with_refraction: If True adjust zenith to take refraction into account
 
-    Returns:
-        The zenith angle in degrees.
-    """
+	:returns: The zenith angle in degrees.
+	"""
 
 	if dateandtime is None:
 		dateandtime = now()
@@ -640,20 +667,17 @@ def azimuth(
 		observer: Observer,
 		dateandtime: Optional[datetime.datetime] = None,
 		) -> float:
-	"""Calculate the azimuth angle of the sun.
+	"""
+	Calculate the azimuth angle of the sun.
 
-    Args:
-        observer:    Observer to calculate the solar azimuth for
-        dateandtime: The date and time for which to calculate the angle.
-                     If `dateandtime` is None or is a naive Python datetime
-                     then it is assumed to be in the UTC timezone.
+	:param observer:    Observer to calculate the solar azimuth for
+	:param dateandtime: The date and time for which to calculate the angle.
+		If `dateandtime` is None or is a naive Python datetime then it is assumed to be in the UTC timezone.
 
-    Returns:
-        The azimuth angle in degrees clockwise from North.
+	:returns: The azimuth angle in degrees clockwise from North.
 
-    If `dateandtime` is a naive Python datetime then it is assumed to be
-    in the UTC timezone.
-    """
+	If `dateandtime` is a naive Python datetime then it is assumed to be in the UTC timezone.
+	"""
 
 	if dateandtime is None:
 		dateandtime = now()
@@ -668,16 +692,13 @@ def elevation(
 		) -> float:
 	"""Calculate the sun's angle of elevation.
 
-    Args:
-        observer:    Observer to calculate the solar elevation for
-        dateandtime: The date and time for which to calculate the angle.
-                     If `dateandtime` is None or is a naive Python datetime
-                     then it is assumed to be in the UTC timezone.
-        with_refraction: If True adjust elevation to take refraction into account
+	:param observer: Observer to calculate the solar elevation for
+	:param dateandtime: The date and time for which to calculate the angle.
+		If `dateandtime` is None or is a naive Python datetime then it is assumed to be in the UTC timezone.
+		with_refraction: If True adjust elevation to take refraction into account.
 
-    Returns:
-        The elevation angle in degrees above the horizon.
-    """
+	:returns: The elevation angle in degrees above the horizon.
+	"""
 
 	if dateandtime is None:
 		dateandtime = now()
@@ -692,18 +713,15 @@ def dawn(
 		) -> datetime.datetime:
 	"""Calculate dawn time.
 
-    Args:
-        observer:   Observer to calculate dawn for
-        date:       Date to calculate for. Default is today's date in UTC.
-        depression: Number of degrees below the horizon to use to calculate dawn.
-                    Default is for Civil dawn i.e. 6.0
+	:param observer: Observer to calculate dawn for
+	:param date: Date to calculate for. Default is today's date in UTC.
+	:param depression: Number of degrees below the horizon to use to calculate dawn.
+		Default is for Civil dawn i.e. 6.0
 
-    Returns:
-        Date and time at which dawn occurs.
+	:returns: Date and time at which dawn occurs.
 
-    Raises:
-        ValueError: if dawn does not occur on the specified date
-    """
+	:raises ValueError: if dawn does not occur on the specified date
+	"""
 
 	if date is None:
 		date = today()
@@ -729,16 +747,13 @@ def sunrise(
 		) -> datetime.datetime:
 	"""Calculate sunrise time.
 
-    Args:
-        observer: Observer to calculate sunrise for
-        date:     Date to calculate for. Default is today's date in UTC.
+	:param observer: Observer to calculate sunrise for
+	:param date: Date to calculate for. Default is today's date in UTC.
 
-    Returns:
-        Date and time at which sunrise occurs.
+	:returns: Date and time at which sunrise occurs.
 
-    Raises:
-        ValueError: if the sun does not reach the horizon on the specified date
-    """
+	:raises ValueError: if the sun does not reach the horizon on the specified date
+	"""
 
 	if date is None:
 		date = today()
@@ -768,16 +783,14 @@ def sunset(
 		) -> datetime.datetime:
 	"""Calculate sunset time.
 
-    Args:
-        observer: Observer to calculate sunset for
-        date:     Date to calculate for. Default is today's date in UTC.
 
-    Returns:
-        Date and time at which sunset occurs.
+	:param observer: Observer to calculate sunset for
+	:param date: Date to calculate for. Default is today's date in UTC.
 
-    Raises:
-        ValueError: if the sun does not reach the horizon
-    """
+	:returns: Date and time at which sunset occurs.
+
+	:raises ValueError: if the sun does not reach the horizon
+	"""
 
 	if date is None:
 		date = today()
@@ -806,20 +819,18 @@ def dusk(
 		date: Optional[datetime.date] = None,
 		depression: Union[float, Depression] = Depression.CIVIL,
 		) -> datetime.datetime:
-	"""Calculate dusk time.
+	"""
+	Calculate dusk time.
 
-    Args:
-        observer:   Observer to calculate dusk for
-        date:       Date to calculate for. Default is today's date in UTC.
-        depression: Number of degrees below the horizon to use to calculate dusk.
-                    Default is for Civil dusk i.e. 6.0
+	:param observer: Observer to calculate dusk for
+	:param date: Date to calculate for. Default is today's date in UTC.
+	:param depression: Number of degrees below the horizon to use to calculate dusk.
+		Default is for Civil dusk i.e. 6.0
 
-    Returns:
-        Date and time at which dusk occurs.
+	:returns: Date and time at which dusk occurs.
 
-    Raises:
-        ValueError: if dusk does not occur on the specified date
-    """
+	:raises ValueError: if dusk does not occur on the specified date
+	"""
 
 	if date is None:
 		date = today()
@@ -845,16 +856,13 @@ def daylight(
 		) -> Tuple[datetime.datetime, datetime.datetime]:
 	"""Calculate daylight start and end times.
 
-    Args:
-        observer: Observer to calculate daylight for
-        date:     Date to calculate for. Default is today's date in UTC.
+	:param observer: Observer to calculate daylight for
+	:param date: Date to calculate for. Default is today's date in UTC.
 
-    Returns:
-        A tuple of the date and time at which daylight starts and ends.
+	:returns: A tuple of the date and time at which daylight starts and ends.
 
-    Raises:
-        ValueError: if the sun does not rise or does not set
-    """
+	:raises ValueError: if the sun does not rise or does not set
+	"""
 
 	if date is None:
 		date = today()
@@ -871,21 +879,16 @@ def night(
 		) -> Tuple[datetime.datetime, datetime.datetime]:
 	"""Calculate night start and end times.
 
-    Night is calculated to be between astronomical dusk on the
-    date specified and astronomical dawn of the next day.
+	Night is calculated to be between astronomical dusk on the
+	date specified and astronomical dawn of the next day.
 
-    Args:
-        observer: Observer to calculate night for
-        date:     Date to calculate for. Default is today's date for the
-                  specified tzinfo.
+	:param observer: Observer to calculate night for
+	:param date: Date to calculate for. Default is today's date for the specified tzinfo.
 
-    Returns:
-        A tuple of the date and time at which night starts and ends.
+	:returns: A tuple of the date and time at which night starts and ends.
 
-    Raises:
-        ValueError: if dawn does not occur on the specified date or
-                    dusk on the following day
-    """
+	:raises ValueError: if dawn does not occur on the specified date or dusk on the following day
+	"""
 
 	if date is None:
 		date = today()
@@ -900,27 +903,23 @@ def night(
 def twilight(
 		observer: Observer,
 		date: Optional[datetime.date] = None,
-		direction: SunDirection = SunDirection.RISING,
+		direction: int = SunDirection.RISING,
 		) -> Tuple[datetime.datetime, datetime.datetime]:
-	"""Returns the start and end times of Twilight
-    when the sun is traversing in the specified direction.
+	"""
+	Returns the start and end times of Twilight when the sun is traversing in the specified direction.
 
-    This method defines twilight as being between the time
-    when the sun is at -6 degrees and sunrise/sunset.
+	This method defines twilight as being between the time
+	when the sun is at -6 degrees and sunrise/sunset.
 
-    Args:
-        observer:  Observer to calculate twilight for
-        date:      Date for which to calculate the times.
-                      Default is today's date in UTC.
-        direction: Determines whether the time is for the sun rising or setting.
-                      Use ``astral.SunDirection.RISING`` or ``astral.SunDirection.SETTING``.
+	:param observer: Observer to calculate twilight for
+	:param date: Date for which to calculate the times. Default is today's date in UTC.
+	:param direction: Determines whether the time is for the sun rising or setting.
+		Use ``astral.SunDirection.RISING`` or ``astral.SunDirection.SETTING``.
 
-    Returns:
-        A tuple of the date and time at which twilight starts and ends.
+	:returns: A tuple of the date and time at which twilight starts and ends.
 
-    Raises:
-        ValueError: if the sun does not rise or does not set
-    """
+	:raises ValueError: if the sun does not rise or does not set
+	"""
 
 	if date is None:
 		date = today()
@@ -940,28 +939,24 @@ def twilight(
 def golden_hour(
 		observer: Observer,
 		date: Optional[datetime.date] = None,
-		direction: SunDirection = SunDirection.RISING,
+		direction: int = SunDirection.RISING,
 		) -> Tuple[datetime.datetime, datetime.datetime]:
-	"""Returns the start and end times of the Golden Hour
-    when the sun is traversing in the specified direction.
+	"""
+	Returns the start and end times of the Golden Hour when the sun is traversing in the specified direction.
 
-    This method uses the definition from PhotoPills i.e. the
-    golden hour is when the sun is between 4 degrees below the horizon
-    and 6 degrees above.
+	This method uses the definition from PhotoPills i.e. the
+	golden hour is when the sun is between 4 degrees below the horizon
+	and 6 degrees above.
 
-    Args:
-        observer:  Observer to calculate the golden hour for
-        date:      Date for which to calculate the times.
-                      Default is today's date in UTC.
-        direction: Determines whether the time is for the sun rising or setting.
-                      Use ``SunDirection.RISING`` or ``SunDirection.SETTING``.
+	:param observer: Observer to calculate the golden hour for.
+	:param date: Date for which to calculate the times. Default is today's date in UTC.
+	:param direction: Determines whether the time is for the sun rising or setting.
+		Use ``SunDirection.RISING`` or ``SunDirection.SETTING``.
 
-    Returns:
-        A tuple of the date and time at which the Golden Hour starts and ends.
+	:returns: A tuple of the date and time at which the Golden Hour starts and ends.
 
-    Raises:
-        ValueError: if the sun does not transit the elevations -4 & +6 degrees
-    """
+	:raises ValueError: if the sun does not transit the elevations -4 & +6 degrees
+	"""
 
 	if date is None:
 		date = today()
@@ -978,27 +973,23 @@ def golden_hour(
 def blue_hour(
 		observer: Observer,
 		date: Optional[datetime.date] = None,
-		direction: SunDirection = SunDirection.RISING,
+		direction: int = SunDirection.RISING,
 		) -> Tuple[datetime.datetime, datetime.datetime]:
-	"""Returns the start and end times of the Blue Hour
-    when the sun is traversing in the specified direction.
+	"""
+	Returns the start and end times of the Blue Hour when the sun is traversing in the specified direction.
 
-    This method uses the definition from PhotoPills i.e. the
-    blue hour is when the sun is between 6 and 4 degrees below the horizon.
+	This method uses the definition from PhotoPills i.e. the
+	blue hour is when the sun is between 6 and 4 degrees below the horizon.
 
-    Args:
-        observer:  Observer to calculate the blue hour for
-        date:      Date for which to calculate the times.
-                      Default is today's date in UTC.
-        direction: Determines whether the time is for the sun rising or setting.
-                      Use ``SunDirection.RISING`` or ``SunDirection.SETTING``.
+	:param observer: Observer to calculate the blue hour for
+	:param date: Date for which to calculate the times. Default is today's date in UTC.
+	:param direction: Determines whether the time is for the sun rising or setting.
+		Use ``SunDirection.RISING`` or ``SunDirection.SETTING``.
 
-    Returns:
-        A tuple of the date and time at which the Blue Hour starts and ends.
+	:returns: A tuple of the date and time at which the Blue Hour starts and ends.
 
-    Raises:
-        ValueError: if the sun does not transit the elevations -4 & -6 degrees
-    """
+	:raises ValueError: if the sun does not transit the elevations -4 & -6 degrees
+	"""
 
 	if date is None:
 		date = today()
@@ -1019,17 +1010,14 @@ def rahukaalam(
 		) -> Tuple[datetime.datetime, datetime.datetime]:
 	"""Calculate ruhakaalam times.
 
-    Args:
-        observer: Observer to calculate rahukaalam for
-        date:     Date to calculate for. Default is today's date in UTC.
-        daytime:  If True calculate for the day time else calculate for the night time.
+	:param observer: Observer to calculate rahukaalam for
+	:param date: Date to calculate for. Default is today's date in UTC.
+	:param daytime: If True calculate for the day time else calculate for the night time.
 
-    Returns:
-        Tuple containing the start and end times for Rahukaalam.
+	:returns: Tuple containing the start and end times for Rahukaalam.
 
-    Raises:
-        ValueError: if the sun does not rise or does not set
-    """
+	:raises ValueError: if the sun does not rise or does not set
+	"""
 
 	if date is None:
 		date = today()
@@ -1063,20 +1051,16 @@ def sun(
 		) -> Dict:
 	"""Calculate all the info for the sun at once.
 
-    Args:
-        observer:             Observer for which to calculate the times of the sun
-        date:                 Date to calculate for.
-                              Default is today's date in UTC.
-        dawn_dusk_depression: Depression to use to calculate dawn and dusk.
-                              Default is for Civil dusk i.e. 6.0
+	:param observer: Observer for which to calculate the times of the sun
+	:param date: Date to calculate for. Default is today's date in UTC.
+	:param dawn_dusk_depression: Depression to use to calculate dawn and dusk.
+		Default is for Civil dusk i.e. 6.0
 
-    Returns:
-        Dictionary with keys ``dawn``, ``sunrise``, ``noon``, ``sunset`` and ``dusk``
-        whose values are the results of the corresponding functions.
+	:returns: Dictionary with keys ``dawn``, ``sunrise``, ``noon``, ``sunset`` and ``dusk``
+		whose values are the results of the corresponding functions.
 
-    Raises:
-        ValueError: if passed through from any of the functions
-    """
+	:raises ValueError: if passed through from any of the functions
+	"""
 
 	if date is None:
 		date = today()
