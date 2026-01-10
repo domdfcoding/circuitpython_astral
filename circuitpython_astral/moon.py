@@ -2,17 +2,16 @@
 from math import ceil, degrees, fabs, floor, radians, sin
 
 # 3rd party
-import adafruit_datetime as datetime
+import adafruit_datetime as datetime  # type: ignore[import-untyped]
 
 # this package
 from circuitpython_astral import today
 from circuitpython_astral.sun import julianday
 
-try:
+TYPE_CHECKING = False
+if TYPE_CHECKING:
 	# stdlib
 	from typing import Optional
-except ImportError:
-	pass
 
 __all__ = ["phase"]
 

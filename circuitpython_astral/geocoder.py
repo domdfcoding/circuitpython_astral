@@ -19,11 +19,10 @@ from functools import reduce
 # this package
 from circuitpython_astral import LocationInfo, dms_to_float
 
-try:
+TYPE_CHECKING = False
+if TYPE_CHECKING:
 	# stdlib
 	from typing import Dict, Generator, List, Optional, Sequence, Tuple, Union
-except ImportError:
-	pass
 
 __all__ = ["lookup", "database", "add_locations", "all_locations"]
 

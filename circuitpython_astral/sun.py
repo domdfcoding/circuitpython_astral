@@ -2,17 +2,16 @@
 from math import acos, asin, atan2, cos, degrees, fabs, floor, radians, sin, sqrt, tan
 
 # 3rd party
-import adafruit_datetime as datetime
+import adafruit_datetime as datetime  # type: ignore[import-untyped]
 from micropython import const  # nodep (CircuitPython builtin)
 
 # this package
 from circuitpython_astral import Depression, Observer, SunDirection, now, today
 
-try:
+TYPE_CHECKING = False
+if TYPE_CHECKING:
 	# stdlib
 	from typing import Dict, Optional, Tuple, Union
-except ImportError:
-	pass
 
 __all__ = [
 		"sun",
@@ -37,7 +36,7 @@ __all__ = [
 _MAXORDINAL = const(3652059)
 
 
-def __sub__(self, other):
+def __sub__(self, other):  # noqa: MAN001,MAN002
 	"""
 	Subtract two dates, or a date and a timedelta.
 	"""
@@ -51,7 +50,7 @@ def __sub__(self, other):
 	return NotImplemented
 
 
-def __add__(self, other):
+def __add__(self, other):  # noqa: MAN001,MAN002
 	"""Add a date to a timedelta."""
 	if isinstance(other, datetime.timedelta):
 		o = self.toordinal() + other.days
@@ -315,7 +314,10 @@ def adjust_to_horizon(elevation: float) -> float:
 
 
 def adjust_to_obscuring_feature(elevation: Tuple[float, float]) -> float:
-	"""Calculate the number of degrees to adjust for an obscuring feature"""
+	"""
+	Calculate the number of degrees to adjust for an obscuring feature.
+	"""
+
 	if elevation[0] == 0.0:
 		return 0.0
 
@@ -353,7 +355,8 @@ def time_of_transit(
 		zenith: float,
 		direction: int,
 		) -> datetime.datetime:
-	"""Calculate the time in the UTC timezone when the sun transits the specificed zenith
+	"""
+	Calculate the time in the UTC timezone when the sun transits the specificed zenith.
 
 	:param observer: An observer viewing the sun at a specific, latitude, longitude and elevation
 	:param date: The date to calculate for
@@ -419,7 +422,8 @@ def time_at_elevation(
 		direction: int = SunDirection.RISING,
 		tzinfo: Union[str, datetime.tzinfo] = None,
 		) -> datetime.datetime:
-	"""Calculates the time when the sun is at the specified elevation on the specified date.
+	"""
+	Calculates the time when the sun is at the specified elevation on the specified date.
 
 	Note:
 		This method uses positive elevations for those above the horizon.
@@ -427,8 +431,8 @@ def time_at_elevation(
 		Elevations greater than 90 degrees are converted to a setting sun
 		i.e. an elevation of 110 will calculate a setting sun at 70 degrees.
 
-	:param elevation: Elevation of the sun in degrees above the horizon to calculate for.
 	:param observer: Observer to calculate for
+	:param elevation: Elevation of the sun in degrees above the horizon to calculate for.
 	:param date: Date to calculate for. Default is today's date in UTC.
 	:param direction: Determines whether the calculated time is for the sun rising or setting.
 		Use ``SunDirection.RISING`` or ``SunDirection.SETTING``. Default is rising.
@@ -442,10 +446,12 @@ def time_at_elevation(
 		direction = SunDirection.SETTING
 
 	if isinstance(tzinfo, str):
-		tzinfo = pytz.timezone(tzinfo)
+		raise NotImplementedError  # TODO
+		# tzinfo = pytz.timezone(tzinfo)
 
 	if date is None:
-		date = today(tzinfo)
+		raise NotImplementedError  # TODO
+		# date = today(tzinfo)
 
 	zenith = 90 - elevation
 	try:
@@ -729,7 +735,8 @@ def dawn(
 
 	dep: float = 0.0
 	if isinstance(depression, Depression):
-		dep = depression.value
+		raise NotImplementedError  # TODO
+		# dep = depression.value
 	else:
 		dep = depression
 
@@ -838,7 +845,8 @@ def dusk(
 
 	dep: float = 0.0
 	if isinstance(depression, Depression):
-		dep = depression.value
+		raise NotImplementedError  # TODO
+		# dep = depression.value
 	else:
 		dep = depression
 

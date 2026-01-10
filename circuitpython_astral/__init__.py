@@ -46,14 +46,13 @@ can be perfomed using the :func:`~astral.geocoder.lookup` function defined in
 import re
 
 # 3rd party
-import adafruit_datetime as datetime
+import adafruit_datetime as datetime  # type: ignore[import-untyped]
 
-try:
+TYPE_CHECKING = False
+if TYPE_CHECKING:
 	# stdlib
 	from typing import Optional, Tuple, Union
 	Elevation = Union[float, Tuple[float, float]]
-except ImportError:
-	Elevation = None
 
 __all__ = [
 		"Depression",
@@ -80,7 +79,7 @@ def today() -> datetime.date:
 	return now().date()
 
 
-def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = None) -> float:
+def dms_to_float(dms: Union[str, float, "Elevation"], limit: Optional[float] = None) -> float:
 	"""
 	Converts as string of the form `degrees°minutes'seconds"[N|S|E|W]`, or a float encoded as a string, to a float.
 
@@ -94,7 +93,7 @@ def dms_to_float(dms: Union[str, float, Elevation], limit: Optional[float] = Non
 	"""
 
 	try:
-		res = float(dms)  # type: ignore
+		res = float(dms)  # type: ignore[arg-type]  # TODO
 	except (ValueError, TypeError):
 		_dms_re = r"(?P<deg>\d{1,3})[°]((?P<min>\d{1,2})[′'])?((?P<sec>\d{1,2})[″\"])?(?P<dir>[NSEW])?"
 		m = re.match(_dms_re, str(dms), flags=re.IGNORECASE)
@@ -168,19 +167,19 @@ class Observer:
 
 	latitude: float
 	longitude: float
-	elevation: Elevation
+	elevation: "Elevation"
 
 	def __init__(
 			self,
 			latitude: float = 51.4733,
 			longitude: float = -0.0008333,
-			elevation: Elevation = 0.0,
+			elevation: "Elevation" = 0.0,
 			) -> None:
 		self.latitude = latitude
 		self.longitude = longitude
 		self.elevation = elevation
 
-	def __setattr__(self, name: str, value: Union[str, float, Elevation]) -> None:
+	def __setattr__(self, name: str, value: Union[str, float, "Elevation"]) -> None:
 		if name == "latitude":
 			value = dms_to_float(value, 90.0)
 		elif name == "longitude":
