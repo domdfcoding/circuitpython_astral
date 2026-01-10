@@ -26,6 +26,9 @@ keywords:
 
 requires_python: 3.4
 
+python_versions:
+  - 3.4
+
 exclude_files:
  - contributing
  - pkginfo

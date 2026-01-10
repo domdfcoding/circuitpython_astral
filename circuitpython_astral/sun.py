@@ -454,7 +454,7 @@ def time_at_elevation(
 		if exc.args[0] == "math domain error":
 			raise ValueError(
 					f"Sun never reaches an elevation of {elevation} degrees "
-					"at this location."
+					"at this location.",
 					) from exc
 		else:
 			raise
@@ -602,8 +602,9 @@ def zenith_and_azimuth(
 
 	harad = radians(hourangle)
 
-	csz = sin(radians(latitude)) * sin(radians(solarDec)) + cos(radians(latitude)) * cos(radians(solarDec)
-																							) * cos(harad)
+	latitude_rad = radians(latitude)
+	solar_dec_rad = radians(solarDec)
+	csz = sin(latitude_rad) * sin(solar_dec_rad) + cos(latitude_rad) * cos(solar_dec_rad) * cos(harad)
 
 	if csz > 1.0:
 		csz = 1.0

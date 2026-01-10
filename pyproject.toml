@@ -25,7 +25,7 @@ Homepage = "https://github.com/domdfcoding/circuitpython_astral"
 
 [tool.whey]
 base-classifiers = []
-python-versions = [ "3.8",]
+python-versions = [ "3.4",]
 python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
 license-key = "Apache-2.0"
@@ -55,3 +55,9 @@ reformat = true
 
 [tool.dependency-dash."requirements.txt"]
 order = 10
+
+[tool.dep_checker]
+allowed_unused = [ "adafruit_blinka",]
+
+[tool.dep_checker.name_mapping]
+adafruit_circuitpython_datetime = "adafruit_datetime"

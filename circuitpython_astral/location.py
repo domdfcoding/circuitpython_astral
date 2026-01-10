@@ -186,7 +186,7 @@ class Location:
 				raise KeyError(
 						"solar_depression must be either a number "
 						"or one of 'civil', 'nautical' or "
-						"'astronomical'"
+						"'astronomical'",
 						)
 		elif isinstance(depression, Depression):
 			self._solar_depression = depression.value
