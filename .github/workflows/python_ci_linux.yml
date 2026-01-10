@@ -12,24 +12,22 @@ on:
       - '*'
   pull_request:
 
-permissions:
-  actions: write
-  issues: write
-  contents: read
-
 jobs:
   tests:
-    name: "ubuntu-20.04 / Python ${{ matrix.config.python-version }}"
-    runs-on: "ubuntu-20.04"
+    permissions:
+      actions: write
+      contents: read
+    name: "ubuntu-22.04 / Python ${{ matrix.config.python-version }}"
+    runs-on: "ubuntu-22.04"
     continue-on-error: ${{ matrix.config.experimental }}
     env:
-      USING_COVERAGE: '3.8'
+      USING_COVERAGE: '3.4'
 
     strategy:
       fail-fast: False
       matrix:
         config:
-          - {python-version: "3.8", testenvs: "py38,build", experimental: False}
+          - {python-version: "3.4", testenvs: "py34,build", experimental: False}
 
     steps:
       - name: Checkout 🛎️
