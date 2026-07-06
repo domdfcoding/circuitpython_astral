@@ -69,13 +69,15 @@ __author__ = "Simon Kennedy <sffjunkie+code@gmail.com>"
 
 
 def now() -> datetime.datetime:
-	"""Returns the current time in UTC."""
+	"""Returns the current time in UTC.
+"""
 
 	return datetime.datetime.now()
 
 
 def today() -> datetime.date:
-	"""Returns the current date in UTC."""
+	"""Returns the current date in UTC.
+"""
 	return now().date()
 
 

@@ -51,7 +51,8 @@ def __sub__(self, other):  # noqa: MAN001,MAN002
 
 
 def __add__(self, other):  # noqa: MAN001,MAN002
-	"""Add a date to a timedelta."""
+	"""Add a date to a timedelta.
+"""
 	if isinstance(other, datetime.timedelta):
 		o = self.toordinal() + other.days
 		if 0 < o <= _MAXORDINAL:
@@ -326,7 +327,8 @@ def adjust_to_obscuring_feature(elevation: Tuple[float, float]) -> float:
 
 
 def refraction_at_zenith(zenith: float) -> float:
-	"""Calculate the degrees of refraction of the sun due to the sun's elevation."""
+	"""Calculate the degrees of refraction of the sun due to the sun's elevation.
+"""
 
 	elevation = 90 - zenith
 	if elevation >= 85.0:

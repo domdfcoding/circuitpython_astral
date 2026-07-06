@@ -19,7 +19,8 @@ __all__ = ["Location"]
 
 
 class Location:
-	"""Provides access to information for single location."""
+	"""Provides access to information for single location.
+"""
 
 	def __init__(self, info: Optional[LocationInfo] = None):
 		"""

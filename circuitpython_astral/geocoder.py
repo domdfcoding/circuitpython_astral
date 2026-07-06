@@ -491,7 +491,8 @@ def _indexable_to_locationinfo(idxable: "Sequence") -> LocationInfo:
 
 
 def _add_locations_from_str(location_string: str, db: LocationDatabase) -> None:
-	"""Add locations from a string."""
+	"""Add locations from a string.
+"""
 
 	for line in location_string.split('\n'):
 		line = line.strip()
@@ -502,7 +503,8 @@ def _add_locations_from_str(location_string: str, db: LocationDatabase) -> None:
 
 
 def _add_locations_from_list(location_list: List[Union[Tuple, str]], db: LocationDatabase) -> None:
-	"""Add locations from a list of either strings or lists of strings or tuples of strings."""
+	"""Add locations from a list of either strings or lists of strings or tuples of strings.
+"""
 	for info in location_list:
 		if isinstance(info, str):
 			_add_locations_from_str(info, db)
